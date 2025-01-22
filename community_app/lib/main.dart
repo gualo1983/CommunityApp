@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:appwrite/appwrite.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Client client = Client()
+      .setEndpoint('https://cloud.appwrite.io/v1') // Your API Endpoint
+      .setProject('647b8b0ac0c9c790ead7');
+  Account account = Account(client); // Your project ID
   runApp(const MyApp());
 }
 
