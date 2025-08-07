@@ -22,6 +22,7 @@ export default function TabLayout() {
           fontSize: 24,
           fontWeight: 'bold',
         },
+        headerTitleAlign: 'center', // Centra il titolo dell'header
         tabBarStyle: {
           backgroundColor: theme.colors.tabBarBackground, // Usa il colore del tema
           borderTopWidth: 1,

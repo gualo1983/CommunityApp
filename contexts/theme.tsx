@@ -17,9 +17,10 @@ export interface Theme {
   };
   typography: {
     fontSizes: {
-      large: number;
-      medium: number;
+      default: number; // Dimensione predefinita per il testo generale
       small: number;
+      medium: number;
+      large: number;
     };
     fontWeights: {
       bold: 'bold';
@@ -68,34 +69,55 @@ const lightenDarkenColor = (col: string, amt: number) => {
   return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
 };
 
-// Determina il colore del testo (bianco o nero) che contrasta meglio con un dato colore di sfondo
-const getContrastColor = (hexcolor: string) => {
+// Calcola la luminanza relativa di un colore HEX (per WCAG)
+export const getLuminance = (hexcolor: string) => {
   const { r, g, b } = hexToRgb(hexcolor);
-  // Calcola la luminanza relativa
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? '#000000' : '#FFFFFF';
+  const sR = r / 255;
+  const sG = g / 255;
+  const sB = b / 255;
+
+  const R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
+  const G = sG <= 0.03928 ? sG / 12.92 : Math.pow((sG + 0.055) / 1.055, 2.4);
+  const B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
+
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
 };
+
+// Calcola il rapporto di contrasto tra due colori HEX (per WCAG)
+export const getContrastRatio = (color1: string, color2: string) => {
+  const L1 = getLuminance(color1);
+  const L2 = getLuminance(color2);
+
+  const brighter = Math.max(L1, L2);
+  const darker = Math.min(L1, L2);
+
+  return (brighter + 0.05) / (darker + 0.05);
+};
+
 
 // Temi predefiniti
 export const lightTheme: Theme = {
   colors: {
-    primary: '#6200EE',
-    background: '#F0F2F5',
-    text: '#000000',
-    textSecondary: '#666666',
-    headerBackground: '#6200EE',
-    headerText: '#FFFFFF',
-    tabBarBackground: '#FFFFFF',
-    tabBarActive: '#6200EE',
-    tabBarInactive: '#999999',
-    cardBackground: '#F0F0F0',
-    cardBorder: '#E0E0E0',
+    primary: '#004d40', // Verde scuro, usato per bottoni e accenti
+    background: '#e0f2f1', // Sfondo leggermente verdastro
+    text: '#212121', // Testo scuro per massima leggibilità
+    textSecondary: '#616161', // Un grigio scuro per il testo secondario
+    headerBackground: '#004d40', // Lo stesso verde scuro del primary
+    headerText: '#FFFFFF', // Testo bianco su sfondo scuro
+    tabBarBackground: '#FFFFFF', // Sfondo della tab bar chiaro
+    tabBarActive: '#004d40', // Verde scuro per l'icona attiva
+    tabBarInactive: '#9e9e9e', // Grigio per le icone inattive
+    cardBackground: '#f5f5f5', // Un grigio molto chiaro per le card
+    cardBorder: '#e0e0e0', // Un bordo leggero per le card
   },
   typography: {
+    // Le dimensioni del carattere 'default', 'small', 'medium', 'large'
+    // verranno impostate dinamicamente in applyTheme
     fontSizes: {
-      large: 24,
-      medium: 16,
-      small: 12,
+      default: 0, // Valore placeholder, verrà sovrascritto
+      large: 0,
+      medium: 0,
+      small: 0,
     },
     fontWeights: {
       bold: 'bold',
@@ -106,23 +128,26 @@ export const lightTheme: Theme = {
 
 export const darkTheme: Theme = {
   colors: {
-    primary: '#BB86FC',
-    background: '#121212',
-    text: '#FFFFFF',
-    textSecondary: '#888888',
-    headerBackground: '#1E1E1E',
-    headerText: '#BB86FC',
-    tabBarBackground: '#1E1E1E',
-    tabBarActive: '#BB86FC',
-    tabBarInactive: '#888888',
-    cardBackground: '#2A2A2A',
-    cardBorder: '#3A3A3A',
+    primary: '#004d40', // Nuovo colore primario scuro. Garantisce un buon contrasto con il testo chiaro.
+    background: '#212121', // Sfondo scuro quasi nero
+    text: '#e0f2f1', // Un bianco sporco per il testo principale
+    textSecondary: '#9e9e9e', // Un grigio chiaro per il testo secondario
+    headerBackground: '#263238', // Un grigio molto scuro per l'header
+    headerText: '#e0f2f1', // Testo chiaro su sfondo scuro
+    tabBarBackground: '#263238', // Sfondo della tab bar scuro
+    tabBarActive: '#80cbc4', // Un verde chiaro come accento per l'icona attiva
+    tabBarInactive: '#616161', // Grigio scuro per le icone inattive
+    cardBackground: '#424242', // Un grigio scuro per le card
+    cardBorder: '#616161', // Un bordo più scuro per le cardù scuro per le card
   },
   typography: {
+    // Le dimensioni del carattere 'default', 'small', 'medium', 'large'
+    // verranno impostate dinamicamente in applyTheme
     fontSizes: {
-      large: 24,
-      medium: 16,
-      small: 12,
+      default: 0, // Valore placeholder, verrà sovrascritto
+      large: 0,
+      medium: 0,
+      small: 0,
     },
     fontWeights: {
       bold: 'bold',
@@ -134,10 +159,13 @@ export const darkTheme: Theme = {
 // Definiamo il tipo di context che esporteremo
 interface ThemeContextType {
   theme: Theme;
-  themeName: 'light' | 'dark' | 'custom'; // Semplificato a 3 temi
-  setTheme: (name: 'light' | 'dark' | 'custom') => void; // Semplificato a 3 temi
-  setCustomColors: (colors: CustomColors) => void; // Un'unica funzione per i colori personalizzati
-  customColors: CustomColors; // Un unico stato per i colori personalizzati
+  themeName: 'light' | 'dark' | 'custom';
+  setTheme: (name: 'light' | 'dark' | 'custom') => void;
+  setCustomColors: (colors: CustomColors) => void;
+  customColors: CustomColors;
+  // Nuove proprietà per la gestione della dimensione del carattere
+  fontSizeOption: 'small' | 'medium' | 'large';
+  setFontSizeOption: (option: 'small' | 'medium' | 'large') => void;
 }
 
 // Creiamo un contesto con un valore di default
@@ -151,6 +179,8 @@ interface ThemeProviderProps {
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const [themeName, setThemeName] = useState<'light' | 'dark' | 'custom'>('light');
   const [currentTheme, setCurrentTheme] = useState<Theme>(lightTheme);
+  // Nuovo stato per la dimensione del carattere scelta dall'utente
+  const [fontSizeOption, setFontSizeOption] = useState<'small' | 'medium' | 'large'>('medium');
 
   // Unico stato per i colori personalizzati
   const [customColors, setCustomColors] = useState<CustomColors>({
@@ -159,15 +189,58 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     text: lightTheme.colors.text,
   });
   
-  // Funzione che aggiorna il tema corrente in base al nome, avvolta in useCallback
+  // Funzione che aggiorna il tema corrente in base al nome e alla dimensione del carattere
   const applyTheme = useCallback((name: 'light' | 'dark' | 'custom') => {
     let newTheme: Theme;
+    let defaultSize: number;
+    let smallSize: number;
+    let mediumSize: number;
+    let largeSize: number;
+
+    // Definisci le dimensioni del carattere in base all'opzione scelta
+    if (fontSizeOption === 'small') {
+      defaultSize = 12; // Carattere base più piccolo
+      smallSize = 10;
+      mediumSize = 12;
+      largeSize = 16;
+    } else if (fontSizeOption === 'large') {
+      defaultSize = 20; // Carattere base più grande
+      smallSize = 16;
+      mediumSize = 20;
+      largeSize = 24;
+    } else { // 'medium' come default
+      defaultSize = 16; // Carattere base medio
+      smallSize = 12;
+      mediumSize = 16;
+      largeSize = 20;
+    }
+
+    // Crea l'oggetto fontSizes dinamico
+    const dynamicFontSizes = {
+      default: defaultSize,
+      small: smallSize,
+      medium: mediumSize,
+      large: largeSize,
+    };
+
     switch (name) {
       case 'light':
-        newTheme = lightTheme;
+        newTheme = {
+          ...lightTheme,
+          typography: {
+            ...lightTheme.typography,
+            fontSizes: dynamicFontSizes, // Applica le dimensioni dinamiche
+          },
+        };
         break;
       case 'dark':
-        newTheme = darkTheme;
+        newTheme = {
+          ...darkTheme,
+          typography: {
+            ...darkTheme.typography,
+            fontSizes: dynamicFontSizes, // Applica le dimensioni dinamiche
+          },
+        };
         break;
       case 'custom':
         // Deriviamo tutti i colori del tema dai colori personalizzati scelti dall'utente
@@ -175,21 +248,22 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           primary: customColors.primary,
           background: customColors.background,
           text: customColors.text,
-          // Deriviamo colori secondari per coerenza
-          textSecondary: getContrastColor(customColors.background) === '#FFFFFF'
-                         ? lightenDarkenColor(customColors.text, 50)  // Più chiaro per sfondi scuri
-                         : lightenDarkenColor(customColors.text, -50), // Più scuro per sfondi chiari
-          cardBackground: lightenDarkenColor(customColors.background, getContrastColor(customColors.background) === '#FFFFFF' ? 10 : -10),
-          cardBorder: lightenDarkenColor(customColors.background, getContrastColor(customColors.background) === '#FFFFFF' ? 20 : -20),
+          textSecondary: lightenDarkenColor(customColors.text, getLuminance(customColors.text) > 0.5 ? -50 : 50),
+          cardBackground: lightenDarkenColor(customColors.background, getLuminance(customColors.background) > 0.5 ? -10 : 10),
+          cardBorder: lightenDarkenColor(customColors.background, getLuminance(customColors.background) > 0.5 ? -20 : 20),
           headerBackground: customColors.primary,
-          headerText: getContrastColor(customColors.primary),
-          tabBarBackground: lightenDarkenColor(customColors.background, getContrastColor(customColors.background) === '#FFFFFF' ? 5 : -5),
+          headerText: customColors.text, // headerText segue direttamente customColors.text
+          tabBarBackground: lightenDarkenColor(customColors.background, getLuminance(customColors.background) > 0.5 ? -5 : 5),
           tabBarActive: customColors.primary,
-          tabBarInactive: lightenDarkenColor(customColors.text, getContrastColor(customColors.background) === '#FFFFFF' ? 30 : -30),
+          tabBarInactive: customColors.text, // tabBarInactive segue direttamente customColors.text
         };
         newTheme = {
           ...lightTheme, // Partiamo da un tema base per ereditare tipografia, ecc.
           colors: derivedColors,
+          typography: {
+            ...lightTheme.typography,
+            fontSizes: dynamicFontSizes, // Applica le dimensioni dinamiche
+          },
         };
         break;
       default:
@@ -197,7 +271,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
         break;
     }
     setCurrentTheme(newTheme);
-  }, [customColors]); // applyTheme dipende solo da customColors ora.
+  }, [customColors, fontSizeOption]); // applyTheme dipende da customColors e fontSizeOption
 
   // Funzione esposta che cambia solo il nome del tema
   const setTheme = (name: 'light' | 'dark' | 'custom') => {
@@ -213,8 +287,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     theme: currentTheme,
     themeName,
     setTheme,
-    setCustomColors, // Unica funzione per impostare i colori personalizzati
-    customColors, // Unico stato per i colori personalizzati
+    setCustomColors,
+    customColors,
+    fontSizeOption, // Esponi lo stato della dimensione del carattere
+    setFontSizeOption, // Esponi la funzione per impostare la dimensione del carattere
   };
 
   return (

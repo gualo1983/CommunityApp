@@ -1,0 +1,113 @@
+// File: components/EditTabModal.tsx
+import React, { useEffect, useState } from 'react';
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../contexts/theme';
+
+interface EditTabModalProps {
+  visible: boolean;
+  onClose: () => void;
+  onEdit: (newTabName: string) => void;
+  initialName: string;
+}
+
+const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalProps) => {
+  const { theme } = useTheme();
+  const [newTabName, setNewTabName] = useState(initialName);
+
+  // Sincronizza lo stato locale con la prop iniziale quando il modale diventa visibile
+  useEffect(() => {
+    setNewTabName(initialName);
+  }, [initialName, visible]);
+
+  const handleEdit = () => {
+    if (newTabName.trim() && newTabName.trim() !== initialName.trim()) {
+      onEdit(newTabName.trim());
+      onClose();
+    }
+  };
+
+  const modalStyles = StyleSheet.create({
+    button: {
+      alignItems: 'center',
+      borderRadius: 5,
+      minWidth: '45%',
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+    },
+    buttonContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      width: '100%',
+    },
+    buttonText: {
+      color: theme.colors.headerText,
+      fontWeight: 'bold',
+    },
+    cancelButton: {
+      backgroundColor: theme.colors.textSecondary,
+    },
+    centeredView: {
+      alignItems: 'center',
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      flex: 1,
+      justifyContent: 'center',
+    },
+    editButton: {
+      backgroundColor: theme.colors.primary,
+    },
+    input: {
+      backgroundColor: theme.colors.cardBackground,
+      borderColor: theme.colors.cardBorder,
+      borderRadius: 5,
+      borderWidth: 1,
+      color: theme.colors.text,
+      height: 40,
+      marginBottom: 20,
+      paddingHorizontal: 10,
+      width: '100%',
+    },
+    modalTitle: {
+      color: theme.colors.text,
+      fontSize: theme.typography.fontSizes.large,
+      fontWeight: theme.typography.fontWeights.bold,
+      marginBottom: 15,
+    },
+    modalView: {
+      alignItems: 'center',
+      backgroundColor: theme.colors.background,
+      borderRadius: 10,
+      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
+      elevation: 5,
+      maxWidth: 400,
+      padding: 20,
+      width: '80%',
+    },
+  });
+
+  return (
+    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
+      <View style={modalStyles.centeredView}>
+        <View style={modalStyles.modalView}>
+          <Text style={modalStyles.modalTitle}>Modifica nome tab</Text>
+          <TextInput
+            style={modalStyles.input}
+            onChangeText={setNewTabName}
+            value={newTabName}
+            placeholder="Nome della tab"
+            placeholderTextColor={theme.colors.textSecondary}
+          />
+          <View style={modalStyles.buttonContainer}>
+            <TouchableOpacity style={[modalStyles.button, modalStyles.cancelButton]} onPress={onClose}>
+              <Text style={modalStyles.buttonText}>Annulla</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[modalStyles.button, modalStyles.editButton]} onPress={handleEdit}>
+              <Text style={modalStyles.buttonText}>Salva</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+export default EditTabModal;

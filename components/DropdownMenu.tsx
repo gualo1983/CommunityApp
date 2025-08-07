@@ -2,7 +2,7 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from '../app/_layout'; // Importiamo il nostro hook useAuth
+import { useAuth } from '../contexts/AuthProvider'; // Importiamo il nostro hook useAuth
 import { useTheme } from '../contexts/theme'; // Importa l'hook useTheme
 
 const DropdownMenu = () => {
@@ -32,90 +32,80 @@ const DropdownMenu = () => {
     return color;
   };
 
-  // Colore di sfondo casuale per l'icona con la lettera, generato solo una volta.
-  const [randomColor] = useState(getRandomColor());
-
-  // Funzione per mostrare/nascondere il menu
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  // Funzione per il rendering dell'icona del profilo
   const renderProfileIcon = () => {
-    // Se c'è un'immagine profilo, usala.
     if (displayUser.profilePicture) {
       return (
-        <Image source={{ uri: displayUser.profilePicture }} style={styles.profileImage} />
+        <Image
+          source={{ uri: displayUser.profilePicture }}
+          style={styles.profileIcon}
+        />
+      );
+    } else {
+      const backgroundColor = getRandomColor();
+      const firstLetter = userName.charAt(0).toUpperCase();
+      return (
+        <View style={[styles.profileIcon, { backgroundColor }]}>
+          <Text style={styles.profileIconText}>{firstLetter}</Text>
+        </View>
       );
     }
-    // Altrimenti, usa la prima lettera del nome con un colore di sfondo casuale.
-    return (
-      <View style={[styles.profileCircle, { backgroundColor: randomColor }]}>
-        <Text style={[styles.profileText, { color: '#FFFFFF' }]}> {/* Colore del testo fisso a bianco per visibilità */}
-          {displayUser.name ? displayUser.name.charAt(0).toUpperCase() : ''}
-        </Text>
-      </View>
-    );
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   // Stili del componente che usano i valori del tema
   const styles = StyleSheet.create({
     container: {
       position: 'relative',
-      zIndex: 100,
+      zIndex: 10,
+    },
+    dropdown: {
+      backgroundColor: theme.colors.cardBackground,
+      borderRadius: 10,
+      boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
+      elevation: 5,
+      position: 'absolute',
+      right: 10,
+      top: 50,
+      width: 200,
     },
     menuButton: {
-      marginRight: 15,
+      marginRight: 10,
+      padding: 10,
     },
-    profileCircle: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-      justifyContent: 'center',
-      alignItems: 'center',
+    menuHeader: {
+      borderBottomColor: theme.colors.cardBorder,
+      borderBottomWidth: 1,
+      padding: 15,
     },
-    profileImage: {
-      width: 36,
-      height: 36,
-      borderRadius: 18,
-    },
-    profileText: {
+    menuHeaderText: {
+      color: theme.colors.text,
       fontSize: 18,
       fontWeight: 'bold',
     },
-    dropdown: {
-      position: 'absolute',
-      top: 50,
-      right: 15,
-      backgroundColor: theme.colors.cardBackground, // Sfondo del dropdown dal tema
-      borderRadius: 8,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-      width: 200,
-      zIndex: 101,
-    },
-    menuHeader: {
-      padding: 15,
-      borderBottomWidth: 1,
-      borderBottomColor: theme.colors.cardBorder, // Bordo dal tema
-      backgroundColor: theme.colors.cardBackground, // Sfondo dell'header del menu dal tema
-    },
-    menuHeaderText: {
-      fontSize: 16,
-      fontWeight: 'bold',
-      color: theme.colors.text, // Colore del testo dal tema
-    },
     menuItem: {
-      padding: 15,
+      borderBottomColor: theme.colors.cardBorder,
       borderBottomWidth: 1,
-      borderBottomColor: theme.colors.cardBorder, // Bordo dal tema
+      borderTopWidth: 0,
+      padding: 15, // Aggiunto per evitare doppi bordi
     },
     menuItemText: {
-      fontSize: 16,
-      color: theme.colors.text, // Colore del testo dal tema
+      color: theme.colors.text,
+      fontSize: 16, // Colore del testo dal tema
+    },
+    profileIcon: {
+      alignItems: 'center',
+      borderRadius: 20,
+      height: 40,
+      justifyContent: 'center',
+      width: 40,
+    },
+    profileIconText: {
+      color: theme.colors.headerText,
+      fontSize: 18,
+      fontWeight: 'bold',
     },
   });
 
@@ -138,6 +128,17 @@ const DropdownMenu = () => {
               {userName}
             </Text>
           </View>
+           {/* Nuovo collegamento per i Messaggi */}
+          <Pressable
+            style={styles.menuItem}
+            onPress={() => {
+              // Naviga alla pagina dei messaggi e chiudi il menu
+              router.push('/msg');
+              toggleMenu();
+            }}
+          >
+            <Text style={styles.menuItemText}>Messaggi</Text>
+          </Pressable>
           <Pressable
             style={styles.menuItem}
             onPress={() => {
