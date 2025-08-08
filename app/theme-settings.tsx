@@ -1,5 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import React, { useState } from 'react';
+import { ColorResult } from 'react-color';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import ColorPickerModal from '../components/ColorPickerModal';
 import ThemePreview from '../components/ThemePreview';
@@ -26,6 +27,7 @@ export default function CustomThemeSettingsPage() {
 
   const [activePicker, setActivePicker] = useState<'primary' | 'background' | 'text' | null>(null);
 
+  // ✨ Stili corretti: ripristino della dichiarazione Stylesheet.create
   const styles = StyleSheet.create({
     colorSelectorRow: {
       alignItems: 'center',
@@ -67,6 +69,7 @@ export default function CustomThemeSettingsPage() {
     },
     popupContainer: {
       backgroundColor: theme.colors.cardBackground,
+      // @ts-ignore
       boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
       borderRadius: 15,
       elevation: 8,
@@ -87,11 +90,12 @@ export default function CustomThemeSettingsPage() {
       color: theme.colors.headerText,
       fontSize: theme.typography.fontSizes.medium,
       fontWeight: 'bold',
-      textAlign: 'center', // Assicura che il testo sia centrato anche se va a capo
+      textAlign: 'center',
     },
     section: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 8,
+      // @ts-ignore
       boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
       elevation: 2,
       marginBottom: 15,
@@ -116,11 +120,41 @@ export default function CustomThemeSettingsPage() {
   const getPickerState = () => {
     switch (activePicker) {
       case 'background':
-        return { color: selectedBackgroundColor, onChange: (color: any) => setSelectedBackgroundColor(color.hex) };
+        // ✨ Correzione della tipizzazione di onColorChange
+        return {
+          color: selectedBackgroundColor,
+          onChange: (color: string | ColorResult) => {
+            if (typeof color === 'string') {
+                setSelectedBackgroundColor(color);
+            } else if (color.hex) {
+                setSelectedBackgroundColor(color.hex);
+            }
+          }
+        };
       case 'primary':
-        return { color: selectedPrimaryColor, onChange: (color: any) => setSelectedPrimaryColor(color.hex) };
+        // ✨ Correzione della tipizzazione di onColorChange
+        return {
+          color: selectedPrimaryColor,
+          onChange: (color: string | ColorResult) => {
+            if (typeof color === 'string') {
+                setSelectedPrimaryColor(color);
+            } else if (color.hex) {
+                setSelectedPrimaryColor(color.hex);
+            }
+          }
+        };
       case 'text':
-        return { color: selectedTextColor, onChange: (color: any) => setSelectedTextColor(color.hex) };
+        // ✨ Correzione della tipizzazione di onColorChange
+        return {
+          color: selectedTextColor,
+          onChange: (color: string | ColorResult) => {
+            if (typeof color === 'string') {
+                setSelectedTextColor(color);
+            } else if (color.hex) {
+                setSelectedTextColor(color.hex);
+            }
+          }
+        };
       default:
         return null;
     }
@@ -128,6 +162,10 @@ export default function CustomThemeSettingsPage() {
 
   const pickerState = getPickerState();
 
+  const handleCloseModal = () => {
+    setActivePicker(null);
+  };
+  
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -197,7 +235,7 @@ export default function CustomThemeSettingsPage() {
       {pickerState && (
         <ColorPickerModal
           visible={!!activePicker}
-          onClose={() => setActivePicker(null)}
+          onClose={handleCloseModal}
           activePicker={activePicker}
           selectedColor={pickerState.color}
           onColorChange={pickerState.onChange}

@@ -114,10 +114,10 @@ export const lightTheme: Theme = {
     // Le dimensioni del carattere 'default', 'small', 'medium', 'large'
     // verranno impostate dinamicamente in applyTheme
     fontSizes: {
-      default: 0, // Valore placeholder, verrà sovrascritto
-      large: 0,
-      medium: 0,
-      small: 0,
+      default: 16, // Valore placeholder, verrà sovrascritto
+      large: 20,
+      medium: 16,
+      small: 12,
     },
     fontWeights: {
       bold: 'bold',
@@ -144,10 +144,10 @@ export const darkTheme: Theme = {
     // Le dimensioni del carattere 'default', 'small', 'medium', 'large'
     // verranno impostate dinamicamente in applyTheme
     fontSizes: {
-      default: 0, // Valore placeholder, verrà sovrascritto
-      large: 0,
-      medium: 0,
-      small: 0,
+      default: 16, // Valore placeholder, verrà sovrascritto
+      large: 20,
+      medium: 16,
+      small: 12,
     },
     fontWeights: {
       bold: 'bold',

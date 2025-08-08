@@ -5,16 +5,36 @@ import { ChromePicker, ColorResult } from 'react-color';
 import { Modal, Platform, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useTheme } from '../contexts/theme';
 
+import ColorPicker from 'react-native-wheel-color-picker';
+
+// ✨ Rimuovi l'interfaccia HsvColor perché non è più utilizzata dalla nuova libreria.
+// interface HsvColor {
+//   h: number;
+//   s: number;
+//   v: number;
+// }
+
 interface ColorPickerModalProps {
   visible: boolean;
   onClose: () => void;
   activePicker: 'primary' | 'background' | 'text' | null;
   selectedColor: string;
-  onColorChange: (color: ColorResult) => void;
+  onColorChange: (color: ColorResult | string) => void;
 }
 
 const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onColorChange }: ColorPickerModalProps) => {
   const { theme } = useTheme();
+
+  const handleNativeColorChange = (color: string) => {
+    onColorChange(color);
+  };
+  
+  const androidPickerStyles = StyleSheet.create({
+    androidPickerContainer: {
+      height: 300,
+      width: '100%',
+    },
+  });
 
   const styles = StyleSheet.create({
     chromePickerWeb: {
@@ -36,7 +56,7 @@ const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onCol
     closeButtonText: {
       color: theme.colors.headerText,
       fontWeight: 'bold',
-    },  
+    },
     infoText: {
       color: theme.colors.textSecondary,
       marginBottom: 10,
@@ -45,9 +65,17 @@ const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onCol
     pickerModal: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 8,
-      boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
       elevation: 5,
       padding: 10,
+      ...Platform.select({
+        web: {
+          boxShadow: '0px 2px 3.84px rgba(0, 0, 0, 0.25)',
+        },
+        android: {
+          width: '90%',
+          maxWidth: 350,
+        },
+      }),
     },
     pickerOverlay: {
       ...StyleSheet.absoluteFillObject,
@@ -57,6 +85,8 @@ const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onCol
       zIndex: 9999,
     },
   });
+
+  const AndroidColorPicker = ColorPicker as any;
 
   return (
     <Modal
@@ -73,7 +103,7 @@ const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onCol
                 <>
                   <ChromePicker
                     color={selectedColor}
-                    onChangeComplete={onColorChange}
+                    onChangeComplete={onColorChange as (color: ColorResult) => void}
                     disableAlpha={true}
                     styles={{ picker: styles.chromePickerWeb }}
                   />
@@ -83,10 +113,18 @@ const ColorPickerModal = ({ visible, onClose, activePicker, selectedColor, onCol
                 </>
               ) : (
                 <>
-                  <Text style={styles.infoText}>
-                    Il color picker avanzato è disponibile solo su web.
-                    Colore attuale: {selectedColor}
-                  </Text>
+                  <Text style={styles.infoText}>Scegli un colore</Text>
+                  <View style={androidPickerStyles.androidPickerContainer}>
+                    <AndroidColorPicker
+                      onColorChange={handleNativeColorChange}
+                      style={{ flex: 1 }}
+                      color={selectedColor}
+                      thumbSize={30}
+                      sliderSize={30}
+                      noSnap={true}
+                      swatches={false}
+                    />
+                  </View>
                   <TouchableOpacity onPress={onClose} style={styles.closeButton}>
                     <Text style={styles.closeButtonText}>Chiudi</Text>
                   </TouchableOpacity>

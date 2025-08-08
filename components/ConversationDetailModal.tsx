@@ -1,8 +1,8 @@
 // File: components/ConversationDetailModal.tsx
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useTheme } from '../contexts/theme';
 import { Conversation, Message } from '../interfaces/message';
 
@@ -19,8 +19,22 @@ const ConversationDetailModal = ({ visible, onClose, conversation, onReply }: Co
   const MAX_CHARS = 500;
   const charsRemaining = MAX_CHARS - replyText.length;
   const isCloseToLimit = charsRemaining <= 50;
+  
+  // 1. Sposta la ref e useEffect qui, prima di ogni return
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  if (!conversation) return null;
+  useEffect(() => {
+    if (visible && scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [visible, conversation]);
+
+  // Il render condizionale deve venire dopo la dichiarazione degli hooks
+  if (!conversation) {
+    return null;
+  }
 
   const handleReply = () => {
     if (replyText.trim().length > 0) {
@@ -30,6 +44,7 @@ const ConversationDetailModal = ({ visible, onClose, conversation, onReply }: Co
   };
 
   const styles = StyleSheet.create({
+    // ... i tuoi stili qui
     centeredView: {
       alignItems: 'center',
       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -38,8 +53,16 @@ const ConversationDetailModal = ({ visible, onClose, conversation, onReply }: Co
       padding: 20,
     },
     chatContainer: {
-      flex: 1,
       padding: 10,
+      minHeight: 200,
+      ...Platform.select({
+        web: {
+          flex: 1,
+        },
+        android: {
+          flex: 1,
+        },
+      }),
     },
     closeButton: {
       padding: 5,
@@ -86,12 +109,20 @@ const ConversationDetailModal = ({ visible, onClose, conversation, onReply }: Co
     modalView: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 10,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
       elevation: 5,
-      maxHeight: '80%',
-      maxWidth: 600,
+      maxWidth: 400,
       padding: 15,
       width: '100%',
+      ...Platform.select({
+        web: {
+          maxHeight: '80%',
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
+        },
+        android: {
+          flex: 1,
+          height: '80%',
+        },
+      }),
     },
     myMessage: {
       alignSelf: 'flex-end',
@@ -139,7 +170,7 @@ const ConversationDetailModal = ({ visible, onClose, conversation, onReply }: Co
             <MaterialCommunityIcons name="close-circle" size={24} color={theme.colors.textSecondary} />
           </TouchableOpacity>
           <Text style={styles.modalTitle}>R: {conversation.requestTitle}</Text>
-          <ScrollView style={styles.chatContainer}>
+          <ScrollView style={styles.chatContainer} ref={scrollViewRef}>
             {conversation.messages.map((message: Message) => (
               <View
                 key={message.id}
