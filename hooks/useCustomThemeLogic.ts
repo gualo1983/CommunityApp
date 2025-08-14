@@ -1,3 +1,82 @@
+import { useEffect, useState } from 'react';
+import { getContrastRatio, lightTheme, useTheme } from '../contexts/theme';
+
+export const useCustomThemeLogic = () => {
+  const { 
+    customColors, 
+    setCustomColors, 
+    setTheme 
+  } = useTheme();
+
+  const [selectedPrimaryColor, setSelectedPrimaryColor] = useState(customColors.primary || lightTheme.colors.primary);
+  const [selectedBackgroundColor, setSelectedBackgroundColor] = useState(customColors.background || lightTheme.colors.background);
+  const [selectedTextColor, setSelectedTextColor] = useState(customColors.text || lightTheme.colors.text);
+  
+  const [isSaveEnabled, setIsSaveEnabled] = useState(false);
+  const [validationMessage, setValidationMessage] = useState('');
+
+  useEffect(() => {
+    setSelectedPrimaryColor(customColors.primary);
+    setSelectedBackgroundColor(customColors.background);
+    setSelectedTextColor(customColors.text);
+  }, [customColors]);
+
+
+  useEffect(() => {
+    // 1. Controlla il rapporto di contrasto tra testo e sfondo
+    const contrastRatioBackground = getContrastRatio(selectedTextColor, selectedBackgroundColor);
+    
+    // 2. Aggiungi il controllo tra testo e colore primario
+    const contrastRatioPrimary = getContrastRatio(selectedTextColor, selectedPrimaryColor);
+
+    // 3. Controlla il tipo di colore
+    const isPrimaryValid = /^#([0-9A-Fa-f]{3}){1,2}$/.test(selectedPrimaryColor);
+    const isBackgroundValid = /^#([0-9A-Fa-f]{3}){1,2}$/.test(selectedBackgroundColor);
+    const isTextValid = /^#([0-9A-Fa-f]{3}){1,2}$/.test(selectedTextColor);
+
+    // 4. Imposta il messaggio di validazione e abilita il salvataggio
+    if (!isPrimaryValid || !isBackgroundValid || !isTextValid) {
+      setValidationMessage('Tutti i colori devono essere in formato HEX.');
+      setIsSaveEnabled(false);
+    } else if (contrastRatioBackground < 4.5) {
+      setValidationMessage('Contrasto del testo insufficiente. Scegli colori con un rapporto di almeno 4.5.');
+      setIsSaveEnabled(false);
+    } else if (contrastRatioPrimary < 4.5) { // Aggiunto il nuovo controllo
+      setValidationMessage('Il testo non è leggibile sul colore primario. Aumenta il contrasto.');
+      setIsSaveEnabled(false);
+    } else {
+      setValidationMessage('');
+      setIsSaveEnabled(true);
+    }
+
+  }, [selectedPrimaryColor, selectedBackgroundColor, selectedTextColor]);
+
+  const handleSave = () => {
+    if (isSaveEnabled) {
+      setCustomColors({
+        primary: selectedPrimaryColor,
+        background: selectedBackgroundColor,
+        text: selectedTextColor,
+      });
+      setTheme('custom');
+    }
+  };
+
+  return {
+    selectedPrimaryColor,
+    setSelectedPrimaryColor,
+    selectedBackgroundColor,
+    setSelectedBackgroundColor,
+    selectedTextColor,
+    setSelectedTextColor,
+    isSaveEnabled,
+    validationMessage,
+    handleSave,
+  };
+};
+
+
+/*
 // File: hooks/useCustomThemeLogic.ts
 
 import { useCallback, useEffect, useState } from 'react';
@@ -73,3 +152,4 @@ export const useCustomThemeLogic = () => {
     handleSave,
   };
 };
+*/

@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Alert } from 'react-native';
@@ -9,23 +8,22 @@ import { useTheme } from '../contexts/theme';
 export const useSettingsLogic = () => {
   const { user } = useAuth();
   const { supabase } = useSupabase();
-  const { setTheme, themeName, fontSizeOption, setFontSizeOption, customColors } = useTheme();
+  const { setTheme, themeName, fontSizeOption, setFontSizeOption, customColors, setCustomColors } = useTheme();
   const router = useRouter();
 
-  const [isSaving, setIsSaving] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [isPersonalDataModalVisible, setIsPersonalDataModalVisible] = useState(false);
 
-  const handleThemeChange = async (selectedTheme: 'light' | 'dark' | 'custom') => {
+  const handleThemeChange = (selectedTheme: 'light' | 'dark' | 'custom') => {
     setTheme(selectedTheme);
-    await AsyncStorage.setItem('appTheme', selectedTheme);
     if (selectedTheme === 'custom') {
       router.push('/theme-settings');
     }
   };
 
-  const handleFontSizeChange = async (option: 'small' | 'medium' | 'large') => {
+  const handleFontSizeChange = (option: 'small' | 'medium' | 'large') => {
     setFontSizeOption(option);
-    await AsyncStorage.setItem('appFontSize', option);
   };
 
   const handleSave = async () => {
@@ -37,24 +35,11 @@ export const useSettingsLogic = () => {
     setIsSaving(true);
 
     try {
-      const currentSettings: {
-        themeName: 'light' | 'dark' | 'custom';
-        fontSizeOption: 'small' | 'medium' | 'large';
-        customColors?: {
-          primary: string;
-          background: string;
-          text: string;
-        };
-      } = {
+      const currentSettings = {
         themeName,
         fontSizeOption,
+        customColors: themeName === 'custom' ? customColors : undefined,
       };
-
-      if (themeName === 'custom') {
-        currentSettings.customColors = customColors;
-        // Salva anche i colori personalizzati in AsyncStorage
-        await AsyncStorage.setItem('customColors', JSON.stringify(customColors));
-      }
       
       const { error: updateError } = await supabase
         .from('utenti')
@@ -76,6 +61,58 @@ export const useSettingsLogic = () => {
     }
   };
 
+  const handleImportPreferences = async () => {
+    if (!user) {
+      Alert.alert("Errore", "Utente non autenticato. Riprova il login.");
+      return;
+    }
+
+    setIsImporting(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('utenti')
+        .select('impostazioni_app')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      const savedSettings = data?.impostazioni_app;
+
+      if (savedSettings) {
+        if (savedSettings.themeName) {
+          setTheme(savedSettings.themeName);
+        }
+
+        if (savedSettings.fontSizeOption) {
+          setFontSizeOption(savedSettings.fontSizeOption);
+        }
+
+        if (savedSettings.customColors) {
+          setCustomColors(savedSettings.customColors);
+          if (savedSettings.themeName !== 'custom') {
+            setTheme('custom');
+          }
+        }
+
+        Alert.alert("Successo", "Le tue preferenze sono state importate!");
+      } else {
+        Alert.alert("Attenzione", "Nessuna preferenza salvata trovata.");
+      }
+    } catch (err) {
+      console.error('Errore nell\'importazione delle preferenze:', err);
+      Alert.alert(
+        "Errore",
+        "Si è verificato un errore durante l\'importazione. Riprova più tardi."
+      );
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   const handleOpenPersonalDataModal = () => {
     if (!user) {
       router.push('/login');
@@ -90,19 +127,18 @@ export const useSettingsLogic = () => {
 
   return {
     isSaving,
+    isImporting,
     themeName,
     fontSizeOption,
     isPersonalDataModalVisible,
     handleThemeChange,
     handleFontSizeChange,
     handleSave,
+    handleImportPreferences,
     handleOpenPersonalDataModal,
     handleClosePersonalDataModal,
   };
 };
-
-
-
 
 /*
 import { useRouter } from 'expo-router';

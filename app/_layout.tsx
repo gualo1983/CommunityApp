@@ -1,10 +1,12 @@
 // File: _layouts.tsx
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFonts } from 'expo-font';
 import { SplashScreen, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useContext, useEffect, useState } from 'react';
+
+// Importa i wrapper per lo storage
+import { getItem } from '../utils/storage';
 
 // Importa i provider e gli hook dal contesto centralizzato
 import ErrorBoundary from '../components/ErrorBoundary';
@@ -29,9 +31,10 @@ function RootLayoutContent() {
   useEffect(() => {
     async function initializeApp() {
       try {
-        const storedTheme = await AsyncStorage.getItem('appTheme');
-        const storedFontSize = await AsyncStorage.getItem('appFontSize');
-        const storedCustomColors = await AsyncStorage.getItem('customColors');
+        // Usa il wrapper getItem per leggere i dati
+        const storedTheme = await getItem('appTheme');
+        const storedFontSize = await getItem('appFontSize');
+        const storedCustomColors = await getItem('customColors');
         
         // Applica le impostazioni caricate. 
         if (storedTheme) {
@@ -92,7 +95,6 @@ export default function RootLayout() {
     </SupabaseProvider>
   );
 }
-
 
 
 

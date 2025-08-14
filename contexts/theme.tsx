@@ -1,3 +1,332 @@
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
+import { getItem, setItem } from '../utils/storage';
+
+// Funzioni di utilità per la manipolazione dei colori
+// (Puoi spostarle in un file separato come `utils/colorUtils.ts` se preferisci)
+const hexToRgb = (hex: string) => {
+  const bigint = parseInt(hex.slice(1), 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return { r, g, b };
+};
+
+const lightenDarkenColor = (col: string, amt: number) => {
+  let usePound = false;
+  if (col[0] === "#") {
+    col = col.slice(1);
+    usePound = true;
+  }
+  const num = parseInt(col, 16);
+  let r = (num >> 16) + amt;
+  if (r > 255) r = 255;
+  else if (r < 0) r = 0;
+
+  let b = ((num >> 8) & 0x00FF) + amt;
+  if (b > 255) b = 255;
+  else if (b < 0) b = 0;
+
+  let g = (num & 0x0000FF) + amt;
+  if (g > 255) g = 255;
+  else if (g < 0) g = 0;
+
+  return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
+};
+
+export const getLuminance = (hexcolor: string) => {
+  const { r, g, b } = hexToRgb(hexcolor);
+  const sR = r / 255;
+  const sG = g / 255;
+  const sB = b / 255;
+
+  const R = sR <= 0.03928 ? sR / 12.92 : Math.pow((sR + 0.055) / 1.055, 2.4);
+  const G = sG <= 0.03928 ? sG / 12.92 : Math.pow((sG + 0.055) / 1.055, 2.4);
+  const B = sB <= 0.03928 ? sB / 12.92 : Math.pow((sB + 0.055) / 1.055, 2.4);
+
+  return 0.2126 * R + 0.7152 * G + 0.0722 * B;
+};
+
+// Calcola il rapporto di contrasto tra due colori HEX (per WCAG)
+export const getContrastRatio = (color1: string, color2: string) => {
+  const L1 = getLuminance(color1);
+  const L2 = getLuminance(color2);
+
+  const brighter = Math.max(L1, L2);
+  const darker = Math.min(L1, L2);
+
+  return (brighter + 0.05) / (darker + 0.05);
+};
+
+// Definisci la struttura del tuo tema
+export interface Theme {
+  colors: {
+    primary: string;
+    background: string;
+    text: string;
+    textSecondary: string;
+    headerBackground: string;
+    headerText: string;
+    tabBarBackground: string;
+    tabBarActive: string;
+    tabBarInactive: string;
+    cardBackground: string;
+    cardBorder: string;
+    error: string,
+  };
+  typography: {
+    fontSizes: {
+      default: number;
+      small: number;
+      medium: number;
+      large: number;
+    };
+    fontWeights: {
+      bold: 'bold';
+      normal: 'normal';
+    };
+  };
+}
+
+// Interfaccia per i colori personalizzati
+interface CustomColors {
+  primary: string;
+  background: string;
+  text: string;
+}
+
+// Temi predefiniti
+export const lightTheme: Theme = {
+  colors: {
+    primary: '#004d40',
+    background: '#e0f2f1',
+    text: '#212121',
+    textSecondary: '#616161',
+    headerBackground: '#004d40',
+    headerText: '#FFFFFF',
+    tabBarBackground: '#FFFFFF',
+    tabBarActive: '#004d40',
+    tabBarInactive: '#9e9e9e',
+    cardBackground: '#f5f5f5',
+    cardBorder: '#e0e0e0',
+    error: '#D32F2F',
+  },
+  typography: {
+    fontSizes: {
+      default: 16,
+      large: 20,
+      medium: 16,
+      small: 12,
+    },
+    fontWeights: {
+      bold: 'bold',
+      normal: 'normal',
+    },
+  },
+};
+
+export const darkTheme: Theme = {
+  colors: {
+    primary: '#004d40',
+    background: '#212121',
+    text: '#e0f2f1',
+    textSecondary: '#9e9e9e',
+    headerBackground: '#263238',
+    headerText: '#e0f2f1',
+    tabBarBackground: '#263238',
+    tabBarActive: '#80cbc4',
+    tabBarInactive: '#616161',
+    cardBackground: '#424242',
+    cardBorder: '#616161',
+    error: '#D32F2F',
+  },
+  typography: {
+    fontSizes: {
+      default: 16,
+      large: 20,
+      medium: 16,
+      small: 12,
+    },
+    fontWeights: {
+      bold: 'bold',
+      normal: 'normal',
+    },
+  },
+};
+
+// Definiamo il tipo di context
+interface ThemeContextType {
+  theme: Theme;
+  themeName: 'light' | 'dark' | 'custom';
+  setTheme: (name: 'light' | 'dark' | 'custom') => void;
+  setCustomColors: (colors: CustomColors) => void;
+  customColors: CustomColors;
+  fontSizeOption: 'small' | 'medium' | 'large';
+  setFontSizeOption: (option: 'small' | 'medium' | 'large') => void;
+  isDark: boolean;
+  toggleTheme: () => void;
+}
+
+export const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+interface ThemeProviderProps {
+  children: ReactNode;
+}
+
+export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  const [themeName, setThemeName] = useState<'light' | 'dark' | 'custom'>('light');
+  const [currentTheme, setCurrentTheme] = useState<Theme>(lightTheme);
+  const [fontSizeOption, setFontSizeOption] = useState<'small' | 'medium' | 'large'>('medium');
+  const [customColors, setCustomColors] = useState<CustomColors>({
+    primary: lightTheme.colors.primary,
+    background: lightTheme.colors.background,
+    text: lightTheme.colors.text,
+  });
+
+  const applyTheme = useCallback((name: 'light' | 'dark' | 'custom', fontSize: 'small' | 'medium' | 'large', colors: CustomColors) => {
+    let newTheme: Theme;
+    let defaultSize: number;
+    let smallSize: number;
+    let mediumSize: number;
+    let largeSize: number;
+
+    if (fontSize === 'small') {
+      defaultSize = 12;
+      smallSize = 10;
+      mediumSize = 12;
+      largeSize = 16;
+    } else if (fontSize === 'large') {
+      defaultSize = 20;
+      smallSize = 16;
+      mediumSize = 20;
+      largeSize = 24;
+    } else {
+      defaultSize = 16;
+      smallSize = 12;
+      mediumSize = 16;
+      largeSize = 20;
+    }
+
+    const dynamicFontSizes = {
+      default: defaultSize,
+      small: smallSize,
+      medium: mediumSize,
+      large: largeSize,
+    };
+
+    switch (name) {
+      case 'light':
+        newTheme = {
+          ...lightTheme,
+          typography: {
+            ...lightTheme.typography,
+            fontSizes: dynamicFontSizes,
+          },
+        };
+        break;
+      case 'dark':
+        newTheme = {
+          ...darkTheme,
+          typography: {
+            ...darkTheme.typography,
+            fontSizes: dynamicFontSizes,
+          },
+        };
+        break;
+      case 'custom':
+        const derivedColors = {
+          primary: colors.primary,
+          background: colors.background,
+          text: colors.text,
+          textSecondary: lightenDarkenColor(colors.text, getLuminance(colors.text) > 0.5 ? -50 : 50),
+          cardBackground: lightenDarkenColor(colors.background, getLuminance(colors.background) > 0.5 ? -10 : 10),
+          cardBorder: lightenDarkenColor(colors.background, getLuminance(colors.background) > 0.5 ? -20 : 20),
+          headerBackground: colors.primary,
+          headerText: colors.text,
+          tabBarBackground: lightenDarkenColor(colors.background, getLuminance(colors.background) > 0.5 ? -5 : 5),
+          tabBarActive: colors.primary,
+          tabBarInactive: colors.text,
+          error: '#D32F2F',
+        };
+        newTheme = {
+          ...lightTheme,
+          colors: derivedColors,
+          typography: {
+            ...lightTheme.typography,
+            fontSizes: dynamicFontSizes,
+          },
+        };
+        break;
+      default:
+        newTheme = lightTheme;
+        break;
+    }
+    setCurrentTheme(newTheme);
+  }, []);
+
+  // Questo useEffect carica le impostazioni all'avvio e le applica.
+  // Esegue una sola volta all'avvio del componente.
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const savedTheme = await getItem('appTheme');
+        const savedFontSize = await getItem('appFontSize');
+        const savedCustomColors = await getItem('customColors');
+        
+        if (savedTheme) {
+          setThemeName(savedTheme as 'light' | 'dark' | 'custom');
+        }
+        if (savedFontSize) {
+          setFontSizeOption(savedFontSize as 'small' | 'medium' | 'large');
+        }
+        if (savedCustomColors) {
+          setCustomColors(JSON.parse(savedCustomColors));
+        }
+      } catch (e) {
+        console.error('Failed to load settings from storage', e);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  // Questo useEffect aggiorna il tema corrente e SALVA in locale ogni volta che
+  // themeName, fontSizeOption o customColors cambiano.
+  useEffect(() => {
+    applyTheme(themeName, fontSizeOption, customColors);
+    setItem('appTheme', themeName);
+    setItem('appFontSize', fontSizeOption);
+    if (themeName === 'custom') {
+      setItem('customColors', JSON.stringify(customColors));
+    }
+  }, [themeName, fontSizeOption, customColors, applyTheme]);
+
+  const value = {
+    theme: currentTheme,
+    themeName,
+    setTheme: setThemeName,
+    setCustomColors,
+    customColors,
+    fontSizeOption,
+    setFontSizeOption,
+    isDark: themeName === 'dark',
+    toggleTheme: () => setThemeName(prevName => (prevName === 'light' ? 'dark' : 'light')),
+  };
+
+  return (
+    <ThemeContext.Provider value={value}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return context;
+};
+
+/*
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
@@ -169,6 +498,8 @@ interface ThemeContextType {
   // Nuove proprietà per la gestione della dimensione del carattere
   fontSizeOption: 'small' | 'medium' | 'large';
   setFontSizeOption: (option: 'small' | 'medium' | 'large') => void;
+  // Aggiungiamo le proprietà mancanti
+  isDark: boolean;
 }
 
 // Creiamo un contesto con un valore di default
@@ -281,6 +612,11 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   const setTheme = (name: 'light' | 'dark' | 'custom') => {
     setThemeName(name);
   };
+  
+  // Funzione che commuta tra tema chiaro e scuro
+  const toggleTheme = useCallback(() => {
+    setThemeName(prevName => (prevName === 'light' ? 'dark' : 'light'));
+  }, []);
 
   // Carica le impostazioni da AsyncStorage all'avvio
   useEffect(() => {
@@ -319,6 +655,8 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
     customColors,
     fontSizeOption, // Esponi lo stato della dimensione del carattere
     setFontSizeOption, // Esponi la funzione per impostare la dimensione del carattere
+    isDark: themeName === 'dark',
+    toggleTheme,
   };
 
   return (
@@ -337,6 +675,7 @@ export const useTheme = () => {
   return context;
 };
 
+*/
 
 /*
 import React, { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react';
