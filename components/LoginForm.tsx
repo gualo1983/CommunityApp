@@ -1,14 +1,15 @@
-import { Ionicons } from '@expo/vector-icons';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import {
   ActivityIndicator,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View
-} from 'react-native';
-import { useTheme } from '../contexts/theme';
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface LoginFormProps {
   email: string;
@@ -45,70 +46,69 @@ const LoginForm = ({
   const { colors, typography } = theme;
 
   const styles = StyleSheet.create({
-    formContainer: {
-      width: '100%',
-    },
-    label: {
-      marginTop: 15,
-      marginBottom: 5,
-      color: colors.text,
-      fontSize: typography.fontSizes.default,
-    },
-    input: {
-      height: 50,
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingHorizontal: 15,
-      color: colors.text,
-      fontSize: typography.fontSizes.default,
-    },
-    inputError: {
-      fontSize: 12,
-      marginTop: 5,
-      color: colors.error,
-    },
-    passwordContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    inputPassword: {
-      flex: 1,
-      height: 50,
-      borderWidth: 1,
-      borderRadius: 8,
-      paddingLeft: 15,
-      paddingRight: 50,
-      color: colors.text,
-      fontSize: typography.fontSizes.default,
-    },
-    eyeIcon: {
-      position: 'absolute',
-      right: 15,
-      padding: 10,
-    },
     button: {
-      height: 50,
+      alignItems: "center",
       borderRadius: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
+      height: 50,
+      justifyContent: "center",
       marginTop: 20,
     },
     buttonText: {
       color: colors.headerText,
       fontSize: typography.fontSizes.medium,
     },
+    errorText: {
+      color: colors.error,
+      marginBottom: 10,
+      textAlign: "center",
+    },
+    eyeIcon: {
+      padding: 10,
+      position: "absolute",
+      right: 15,
+    },
+    formContainer: {
+      width: "100%",
+    },
+    input: {
+      borderRadius: 8,
+      borderWidth: 1,
+      color: colors.text,
+      fontSize: typography.fontSizes.default,
+      height: 50,
+      paddingHorizontal: 15,
+    },
+    inputError: {
+      color: colors.error,
+      fontSize: 12,
+      marginTop: 5,
+    },
+    inputPassword: {
+      borderRadius: 8,
+      borderWidth: 1,
+      color: colors.text,
+      flex: 1,
+      fontSize: typography.fontSizes.default,
+      height: 50,
+      paddingLeft: 15,
+      paddingRight: 50,
+    },
+    label: {
+      color: colors.text,
+      fontSize: typography.fontSizes.default,
+      marginBottom: 5,
+      marginTop: 15,
+    },
     loadingOverlay: {
       ...StyleSheet.absoluteFillObject,
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      justifyContent: 'center',
-      alignItems: 'center',
+      alignItems: "center",
+      backgroundColor: theme.colors.headerText,
+      justifyContent: "center",
       zIndex: 10,
     },
-    // Nuovo stile per il messaggio di errore
-    errorText: {
-      textAlign: 'center',
-      marginBottom: 10,
-      color: colors.error,
+    passwordContainer: {
+      alignItems: "center",
+      flexDirection: "row",
     },
   });
 
@@ -116,7 +116,7 @@ const LoginForm = ({
     if (focusedInput === field) {
       return isValid ? colors.primary : colors.error;
     }
-    return 'gray';
+    return "gray";
   };
 
   return (
@@ -126,23 +126,26 @@ const LoginForm = ({
           <ActivityIndicator size="large" color={colors.primary} />
         </View>
       )}
-      
+
       {/* Visualizza il messaggio di errore se presente */}
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <Text style={styles.label}>Email</Text>
       <TextInput
-        style={[styles.input, {
-          borderColor: getBorderColor('email', isEmailValid(email)),
-        }]}
+        style={[
+          styles.input,
+          {
+            borderColor: getBorderColor("email", isEmailValid(email)),
+          },
+        ]}
         value={email}
         onChangeText={setEmail}
         placeholder="email@example.com"
         placeholderTextColor={colors.textSecondary}
         keyboardType="email-address"
         autoCapitalize="none"
-        onFocus={() => setFocusedInput('email')}
-        onBlur={() => setFocusedInput('')}
+        onFocus={() => setFocusedInput("email")}
+        onBlur={() => setFocusedInput("")}
       />
       {!isEmailValid(email) && email.length > 0 && (
         <Text style={styles.inputError}>Inserisci un&apos;email valida.</Text>
@@ -151,20 +154,26 @@ const LoginForm = ({
       <Text style={styles.label}>Password</Text>
       <View style={styles.passwordContainer}>
         <TextInput
-          style={[styles.inputPassword, {
-            borderColor: getBorderColor('password', password.length > 0),
-          }]}
+          style={[
+            styles.inputPassword,
+            {
+              borderColor: getBorderColor("password", password.length > 0),
+            },
+          ]}
           value={password}
           onChangeText={setPassword}
           placeholder="Inserisci la password"
           placeholderTextColor={colors.textSecondary}
           secureTextEntry={!showPassword}
-          onFocus={() => setFocusedInput('password')}
-          onBlur={() => setFocusedInput('')}
+          onFocus={() => setFocusedInput("password")}
+          onBlur={() => setFocusedInput("")}
         />
-        <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+        <TouchableOpacity
+          onPress={() => setShowPassword(!showPassword)}
+          style={styles.eyeIcon}
+        >
           <Ionicons
-            name={showPassword ? 'eye-off' : 'eye'}
+            name={showPassword ? "eye-off" : "eye"}
             size={20}
             color={colors.textSecondary}
           />
@@ -186,8 +195,6 @@ const LoginForm = ({
 };
 
 export default LoginForm;
-
-
 
 /*
 // /components/LoginForms.tsx

@@ -1,9 +1,10 @@
 // File: components/RequestModal.tsx
 
-import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
-import { Request } from '../interfaces/request';
+import React from "react";
+import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { useTheme } from "../contexts/theme";
+import { Request } from "../interfaces/request";
 
 interface RequestModalProps {
   visible: boolean;
@@ -12,103 +13,98 @@ interface RequestModalProps {
   onSendMessage: () => void;
 }
 
-const RequestModal = ({ visible, onClose, request, onSendMessage }: RequestModalProps) => {
+const RequestModal = ({
+  visible,
+  onClose,
+  request,
+  onSendMessage,
+}: RequestModalProps) => {
   const { theme } = useTheme();
 
   if (!request) {
     return null;
   }
 
+  // Definisci i colori mancanti nel tema se non sono già presenti.
+  const modalBackgroundColor = "rgba(0,0,0,0.5)";
+  const buttonTextColor = "#fff";
+  
   const styles = StyleSheet.create({
-    centeredView: {
-      flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalView: {
-      margin: 20,
-      backgroundColor: theme.colors.cardBackground,
-      borderRadius: 20,
-      padding: 35,
-      alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.25,
-      shadowRadius: 4,
-      elevation: 5,
-      width: '90%',
-      maxWidth: 600,
-    },
-    title: {
-      marginBottom: 15,
-      textAlign: 'center',
-      color: theme.colors.text,
-      fontSize: theme.typography.fontSizes.large,
-      fontWeight: theme.typography.fontWeights.bold,
-    },
-    description: {
-      marginBottom: 15,
-      textAlign: 'left',
-      color: theme.colors.textSecondary,
-      fontSize: theme.typography.fontSizes.small,
-      width: '100%',
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '100%',
-      marginTop: 20,
-    },
     button: {
       borderRadius: 20,
-      padding: 10,
       elevation: 2,
       flex: 1,
       marginHorizontal: 5,
+      padding: 10,
     },
     buttonClose: {
       backgroundColor: theme.colors.cardBorder,
     },
+    buttonContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 20,
+      width: "100%",
+    },
     buttonSendMessage: {
       backgroundColor: theme.colors.primary,
     },
-    textStyle: {
-      color: 'white',
-      fontWeight: 'bold',
-      textAlign: 'center',
+    centeredView: {
+      alignItems: "center",
+      backgroundColor: modalBackgroundColor,
+      flex: 1,
+      justifyContent: "center",
     },
     dateText: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.small,
-      textAlign: 'center',
       marginTop: 10,
+      textAlign: "center",
     },
-    // Nuovi stili per il titolo e l'ID
-    titleContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 10,
-        alignItems: 'flex-start',
+    description: {
+      color: theme.colors.textSecondary,
+      fontSize: theme.typography.fontSizes.small,
+      marginBottom: 15,
+      textAlign: "left",
+      width: "100%",
     },
-    requestTitle: {
-        color: theme.colors.text,
-        fontSize: theme.typography.fontSizes.large,
-        fontWeight: theme.typography.fontWeights.bold,
-        flex: 1,
+    modalView: {
+      alignItems: "center",
+      backgroundColor: theme.colors.cardBackground,
+      borderRadius: 20,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
+      elevation: 5,
+      margin: 20,
+      maxWidth: 600,
+      padding: 35,
+      width: "90%",
     },
     requestId: {
-        color: theme.colors.textSecondary,
-        fontSize: theme.typography.fontSizes.small,
-        flex: 0,
-        marginLeft: 10,
-        textAlign: 'right',
-        flexWrap: 'wrap',
-    }
+      color: theme.colors.textSecondary,
+      flex: 0,
+      flexWrap: "wrap",
+      fontSize: theme.typography.fontSizes.small,
+      marginLeft: 10,
+      textAlign: "right",
+    },
+    requestTitle: {
+      color: theme.colors.text,
+      flex: 1,
+      fontSize: theme.typography.fontSizes.large,
+      fontWeight: theme.typography.fontWeights.bold,
+    },
+    textStyle: {
+      color: buttonTextColor,
+      fontWeight: "bold",
+      textAlign: "center",
+    },
+    titleContainer: {
+      alignItems: "flex-start",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginBottom: 10,
+      width: "100%",
+    },
   });
 
   return (
@@ -121,11 +117,13 @@ const RequestModal = ({ visible, onClose, request, onSendMessage }: RequestModal
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <View style={styles.titleContainer}>
-              <Text style={styles.requestTitle}>{request.title}</Text>
-              <Text style={styles.requestId}>ID: {request.id}</Text>
+            <Text style={styles.requestTitle}>{request.title}</Text>
+            <Text style={styles.requestId}>ID: {request.id}</Text>
           </View>
           <Text style={styles.description}>{request.longDescription}</Text>
-          <Text style={styles.dateText}>Scade il: {new Date(request.expiresAt).toLocaleDateString()}</Text>
+          <Text style={styles.dateText}>
+            Scade il: {new Date(request.expiresAt).toLocaleDateString()}
+          </Text>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.buttonSendMessage]}
@@ -147,7 +145,6 @@ const RequestModal = ({ visible, onClose, request, onSendMessage }: RequestModal
 };
 
 export default RequestModal;
-
 
 /*
 // File: components/RequestModal.tsx

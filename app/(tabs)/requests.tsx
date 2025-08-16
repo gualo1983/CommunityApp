@@ -1,12 +1,21 @@
 // File: requests.tsx
 
-import React from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import MessageModal from '../../components/MessageModal';
-import RequestCard from '../../components/RequestCard';
-import RequestModal from '../../components/RequestModal';
-import { useTheme } from '../../contexts/theme';
-import { useRequestsLogic } from '../../hooks/useRequestsLogic';
+import React from "react";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
+
+import MessageModal from "../../components/MessageModal";
+import RequestCard from "../../components/RequestCard";
+import RequestModal from "../../components/RequestModal";
+import { useTheme } from "../../contexts/theme";
+import { useRequestsLogic } from "../../hooks/useRequestsLogic";
 
 const RequestsScreen = () => {
   const { theme } = useTheme();
@@ -36,24 +45,22 @@ const RequestsScreen = () => {
       flex: 1,
       padding: 20,
       ...(isLargeScreen && {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
       }),
-     },
-    // Rimosso lo stile scrollContent
-    scrollView: {
-      flex: 1, // Aggiunto per abilitare lo scrolling
     },
-    // Nuovi stili per il caricamento e l'errore
     messageContainer: {
+      alignItems: "center",
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
+      justifyContent: "center",
     },
     messageText: {
       color: theme.colors.text,
       fontSize: theme.typography.fontSizes.medium,
-      textAlign: 'center',
+      textAlign: "center",
+    },
+    scrollView: {
+      flex: 1, // Aggiunto per abilitare lo scrolling
     },
   });
 

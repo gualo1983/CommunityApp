@@ -1,10 +1,18 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
-import AddTabModal from './AddTabModal';
-import ConfirmDeleteModal from './ConfirmDeleteModal';
-import EditTabModal from './EditTabModal';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
+
+import AddTabModal from "./AddTabModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
+import EditTabModal from "./EditTabModal";
 
 interface TabMenuProps {
   activeTab: string;
@@ -17,7 +25,16 @@ interface TabMenuProps {
   onDeleteTab: (tabName: string) => void;
 }
 
-const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab, onEditTab, onDeleteTab }: TabMenuProps) => {
+const TabMenu = ({
+  activeTab,
+  onTabPress,
+  content,
+  tabs,
+  isAuthorized,
+  onAddTab,
+  onEditTab,
+  onDeleteTab,
+}: TabMenuProps) => {
   const { theme } = useTheme();
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -26,7 +43,7 @@ const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab,
   const tabStyles = StyleSheet.create({
     activeTabButton: {
       backgroundColor: theme.colors.cardBackground,
-      boxShadow: '0px 2px 3px rgba(0, 0, 0, 0.1)',
+      boxShadow: "0px 2px 3px rgba(0, 0, 0, 0.1)",
       elevation: 2,
     },
     activeTabText: {
@@ -36,8 +53,8 @@ const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab,
       paddingHorizontal: 8,
     },
     adminButtonsContainer: {
-      alignItems: 'center',
-      flexDirection: 'row',
+      alignItems: "center",
+      flexDirection: "row",
       paddingRight: 10,
     },
     contentContainer: {
@@ -55,12 +72,12 @@ const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab,
       paddingVertical: 10,
     },
     tabContainer: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: theme.colors.headerBackground,
       borderBottomColor: theme.colors.cardBorder,
       borderBottomWidth: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingVertical: 5,
     },
     tabText: {
@@ -69,21 +86,33 @@ const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab,
       fontWeight: theme.typography.fontWeights.bold,
     },
     tabsScrollView: {
-        flex: 1,
+      flex: 1,
     },
   });
 
   return (
     <>
       <View style={tabStyles.tabContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={tabStyles.tabsScrollView}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={tabStyles.tabsScrollView}
+        >
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab}
-              style={[tabStyles.tabButton, activeTab === tab && tabStyles.activeTabButton]}
+              style={[
+                tabStyles.tabButton,
+                activeTab === tab && tabStyles.activeTabButton,
+              ]}
               onPress={() => onTabPress(tab)}
             >
-              <Text style={[tabStyles.tabText, activeTab === tab && tabStyles.activeTabText]}>
+              <Text
+                style={[
+                  tabStyles.tabText,
+                  activeTab === tab && tabStyles.activeTabText,
+                ]}
+              >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </Text>
             </TouchableOpacity>
@@ -91,14 +120,35 @@ const TabMenu = ({ activeTab, onTabPress, content, tabs, isAuthorized, onAddTab,
         </ScrollView>
         {isAuthorized && (
           <View style={tabStyles.adminButtonsContainer}>
-            <TouchableOpacity style={tabStyles.adminButton} onPress={() => setIsAddModalVisible(true)}>
-              <MaterialCommunityIcons name="plus-circle" size={24} color={theme.colors.tabBarActive} />
+            <TouchableOpacity
+              style={tabStyles.adminButton}
+              onPress={() => setIsAddModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="plus-circle"
+                size={24}
+                color={theme.colors.tabBarActive}
+              />
             </TouchableOpacity>
-            <TouchableOpacity style={tabStyles.adminButton} onPress={() => setIsEditModalVisible(true)}>
-              <MaterialCommunityIcons name="pencil-circle" size={24} color={theme.colors.tabBarActive} />
+            <TouchableOpacity
+              style={tabStyles.adminButton}
+              onPress={() => setIsEditModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="pencil-circle"
+                size={24}
+                color={theme.colors.tabBarActive}
+              />
             </TouchableOpacity>
-            <TouchableOpacity style={tabStyles.adminButton} onPress={() => setIsDeleteModalVisible(true)}>
-              <MaterialCommunityIcons name="minus-circle" size={24} color={theme.colors.tabBarActive} />
+            <TouchableOpacity
+              style={tabStyles.adminButton}
+              onPress={() => setIsDeleteModalVisible(true)}
+            >
+              <MaterialCommunityIcons
+                name="minus-circle"
+                size={24}
+                color={theme.colors.tabBarActive}
+              />
             </TouchableOpacity>
           </View>
         )}

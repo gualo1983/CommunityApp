@@ -1,23 +1,23 @@
-import { Link, Stack } from 'expo-router';
-import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import { Link, Stack } from "expo-router";
+import React from "react";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-import reactLogo from '../assets/images/react-logo.png';
+import { useTheme } from "../contexts/theme";
+import reactLogo from "../assets/images/react-logo.png";
 
 export default function NotFoundScreen() {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
     container: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: theme.colors.background,
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
       padding: 20,
     },
     homeButton: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: theme.colors.primary,
       borderRadius: 10,
       marginTop: 20,
@@ -32,21 +32,21 @@ export default function NotFoundScreen() {
     image: {
       height: 250,
       marginBottom: 30,
-      resizeMode: 'contain',
+      resizeMode: "contain",
       width: 250,
     },
     subtitle: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.medium,
       marginBottom: 20,
-      textAlign: 'center',
+      textAlign: "center",
     },
     title: {
       color: theme.colors.text,
       fontSize: theme.typography.fontSizes.large,
       fontWeight: theme.typography.fontWeights.bold,
       marginBottom: 10,
-      textAlign: 'center',
+      textAlign: "center",
     },
   });
 
@@ -54,8 +54,8 @@ export default function NotFoundScreen() {
     <>
       <Stack.Screen
         options={{
-          title: 'Pagina non trovata',
-          headerTitleAlign: 'center',
+          title: "Pagina non trovata",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: theme.colors.headerBackground,
           },
@@ -69,13 +69,12 @@ export default function NotFoundScreen() {
         }}
       />
       <View style={styles.container}>
-        <Image 
-          source={reactLogo}
-          style={styles.image}
-        />
+        <Image source={reactLogo} style={styles.image} />
         <Text style={styles.title}>404 - Pagina non trovata</Text>
-        <Text style={styles.subtitle}>Spiacenti, la pagina che stavi cercando non esiste.</Text>
-        
+        <Text style={styles.subtitle}>
+          Spiacenti, la pagina che stavi cercando non esiste.
+        </Text>
+
         <Link href="/" asChild>
           <TouchableOpacity style={styles.homeButton}>
             <Text style={styles.homeButtonText}>Torna alla Home</Text>

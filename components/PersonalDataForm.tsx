@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    useWindowDimensions,
-    View
-} from 'react-native';
-import { useAuth } from '../contexts/AuthProvider';
-import { useSupabase } from '../contexts/SupabaseProvider';
-import { useTheme } from '../contexts/theme';
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from "react-native";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useSupabase } from "../contexts/SupabaseProvider";
+import { useTheme } from "../contexts/theme";
 
 // Definisci il tipo per le props del componente
 interface PersonalDataFormProps {
@@ -27,11 +28,11 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
   const isLargeScreen = width > 768;
 
   // Stati per i campi del form
-  const [comuneResidenza, setComuneResidenza] = useState('');
-  const [dataNascita, setDataNascita] = useState('');
+  const [comuneResidenza, setComuneResidenza] = useState("");
+  const [dataNascita, setDataNascita] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   // Fetch dei dati dell'utente al caricamento della pagina
   useEffect(() => {
@@ -40,20 +41,20 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
         setIsFetchingData(false);
         return;
       }
-      
+
       setIsFetchingData(true);
       try {
         const { data, error } = await supabase
-          .from('utenti')
-          .select('comune_residenza, data_nascita')
-          .eq('id', user.id)
+          .from("utenti")
+          .select("comune_residenza, data_nascita")
+          .eq("id", user.id)
           .single();
 
         if (error) throw error;
-        
+
         if (data) {
-          setComuneResidenza(data.comune_residenza || '');
-          setDataNascita(data.data_nascita || '');
+          setComuneResidenza(data.comune_residenza || "");
+          setDataNascita(data.data_nascita || "");
         }
       } catch (err) {
         console.error("Errore nel recupero dei dati utente:", err);
@@ -62,7 +63,7 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
         setIsFetchingData(false);
       }
     };
-    
+
     fetchUserData();
   }, [user, supabase]);
 
@@ -71,39 +72,39 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
       setError("Utente non autenticato. Riprova il login.");
       return;
     }
-    
+
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       if (!comuneResidenza || !dataNascita) {
-        setError('Si prega di compilare tutti i campi obbligatori.');
+        setError("Si prega di compilare tutti i campi obbligatori.");
         setIsLoading(false);
         return;
       }
 
       const { error: updateError } = await supabase
-        .from('utenti')
+        .from("utenti")
         .update({
           comune_residenza: comuneResidenza,
           data_nascita: dataNascita,
-          primo_login: false, 
+          primo_login: false,
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) {
         throw updateError;
       }
 
-      console.log('Profilo utente aggiornato con successo!');
+      console.log("Profilo utente aggiornato con successo!");
       setIsLoading(false);
-      
+
       if (onSaveSuccess) {
         onSaveSuccess();
       }
     } catch (err) {
-      console.error('Errore nel salvataggio dei dati personali:', err);
-      setError('Si è verificato un errore nel salvataggio. Riprova.');
+      console.error("Errore nel salvataggio dei dati personali:", err);
+      setError("Si è verificato un errore nel salvataggio. Riprova.");
       setIsLoading(false);
     }
   };
@@ -112,58 +113,57 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
     container: {
       flex: 1,
       ...(isLargeScreen && {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
       }),
     },
     contentContainer: {
+      alignItems: "center",
       padding: 20,
-      alignItems: 'center',
+    },
+    errorText: {
+      color:theme.colors.error,
+      marginBottom: 15,
+      textAlign: "center",
+    },
+    input: {
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.cardBorder,
+      borderRadius: 10,
+      borderWidth: 1,
+      color: theme.colors.text,
+      fontSize: 16,
+      height: 50,
+      marginBottom: 15,
+      paddingHorizontal: 15,
+      width: "100%",
     },
     popupContainer: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 15,
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       elevation: 8,
       maxWidth: 400,
-      width: '90%',
-      // @ts-ignore
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-    },
-    title: {
-      fontSize: 22,
-      fontWeight: 'bold',
-      color: theme.colors.text,
-      marginBottom: 20,
-    },
-    input: {
-      width: '100%',
-      height: 50,
-      borderColor: theme.colors.cardBorder,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 15,
-      marginBottom: 15,
-      color: theme.colors.text,
-      backgroundColor: theme.colors.background,
-      fontSize: 16,
-    },
-    errorText: {
-      color: 'red',
-      marginBottom: 15,
-      textAlign: 'center',
+      width: "90%",
     },
     saveButton: {
       backgroundColor: theme.colors.primary,
-      paddingVertical: 15,
-      paddingHorizontal: 40,
       borderRadius: 30,
       marginTop: 20,
       opacity: isLoading || isFetchingData ? 0.7 : 1,
+      paddingHorizontal: 40,
+      paddingVertical: 15,
     },
     saveButtonText: {
       color: theme.colors.headerText,
       fontSize: 18,
-      fontWeight: 'bold',
+      fontWeight: "bold",
+    },
+    title: {
+      color: theme.colors.text,
+      fontSize: 22,
+      fontWeight: "bold",
+      marginBottom: 20,
     },
   });
 
@@ -172,7 +172,7 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.title}>Completa il tuo profilo</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
-        
+
         {isFetchingData ? (
           <ActivityIndicator size="large" color={theme.colors.primary} />
         ) : (
@@ -184,7 +184,7 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
               value={comuneResidenza}
               onChangeText={setComuneResidenza}
             />
-            
+
             <TextInput
               style={styles.input}
               placeholder="Data di nascita (AAAA-MM-GG)"
@@ -192,13 +192,15 @@ export const PersonalDataForm = ({ onSaveSuccess }: PersonalDataFormProps) => {
               value={dataNascita}
               onChangeText={setDataNascita}
             />
-            
+
             <Pressable
               style={styles.saveButton}
               onPress={handleSave}
               disabled={isLoading || isFetchingData}
             >
-              <Text style={styles.saveButtonText}>{isLoading ? 'Salvataggio...' : 'Salva'}</Text>
+              <Text style={styles.saveButtonText}>
+                {isLoading ? "Salvataggio..." : "Salva"}
+              </Text>
             </Pressable>
           </>
         )}

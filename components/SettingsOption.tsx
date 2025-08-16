@@ -1,8 +1,9 @@
 // File: components/SettingsOption.tsx
 
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface SettingsOptionProps {
   label: string;
@@ -10,17 +11,21 @@ interface SettingsOptionProps {
   onPress: () => void;
 }
 
-const SettingsOption = ({ label, isSelected, onPress }: SettingsOptionProps) => {
+const SettingsOption = ({
+  label,
+  isSelected,
+  onPress,
+}: SettingsOptionProps) => {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
     checkbox: {
-      alignItems: 'center',
+      alignItems: "center",
       borderColor: theme.colors.text,
       borderRadius: 12,
       borderWidth: 2,
       height: 24,
-      justifyContent: 'center',
+      justifyContent: "center",
       width: 24,
     },
     checkboxSelected: {
@@ -32,9 +37,9 @@ const SettingsOption = ({ label, isSelected, onPress }: SettingsOptionProps) => 
       fontSize: 18,
     },
     option: {
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingVertical: 15,
     },
     optionText: {
@@ -44,10 +49,7 @@ const SettingsOption = ({ label, isSelected, onPress }: SettingsOptionProps) => 
   });
 
   return (
-    <TouchableOpacity
-      style={styles.option}
-      onPress={onPress}
-    >
+    <TouchableOpacity style={styles.option} onPress={onPress}>
       <Text style={styles.optionText}>{label}</Text>
       <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
         {isSelected && <Text style={styles.checkmark}>✓</Text>}

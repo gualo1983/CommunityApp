@@ -1,8 +1,9 @@
 // File: components/ThemePreview.tsx
 
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import React from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface ThemePreviewProps {
   selectedPrimaryColor: string;
@@ -10,7 +11,11 @@ interface ThemePreviewProps {
   selectedTextColor: string;
 }
 
-const ThemePreview = ({ selectedPrimaryColor, selectedBackgroundColor, selectedTextColor }: ThemePreviewProps) => {
+const ThemePreview = ({
+  selectedPrimaryColor,
+  selectedBackgroundColor,
+  selectedTextColor,
+}: ThemePreviewProps) => {
   const { theme } = useTheme();
 
   const styles = StyleSheet.create({
@@ -23,15 +28,15 @@ const ThemePreview = ({ selectedPrimaryColor, selectedBackgroundColor, selectedT
     },
     previewButtonText: {
       color: selectedTextColor,
-      fontWeight: 'bold',
+      fontWeight: "bold",
     },
     previewContainer: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: selectedBackgroundColor,
       borderColor: theme.colors.cardBorder,
       borderRadius: 10,
       borderWidth: 1,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
       elevation: 5,
       marginTop: 20,
       padding: 20,
@@ -40,7 +45,7 @@ const ThemePreview = ({ selectedPrimaryColor, selectedBackgroundColor, selectedT
       color: selectedTextColor,
       fontSize: theme.typography.fontSizes.medium,
       marginBottom: 10,
-      textAlign: 'center',
+      textAlign: "center",
     },
     previewTitle: {
       color: selectedTextColor,
@@ -54,8 +59,9 @@ const ThemePreview = ({ selectedPrimaryColor, selectedBackgroundColor, selectedT
     <View style={styles.previewContainer}>
       <Text style={styles.previewTitle}>Titolo di prova</Text>
       <Text style={styles.previewText}>
-        Questo è un esempio di testo per mostrare come i colori scelti si adattano all&apos;applicazione.
-        Puoi personalizzare il colore di sfondo, il colore primario e il colore del testo.
+        Questo è un esempio di testo per mostrare come i colori scelti si
+        adattano all&apos;applicazione. Puoi personalizzare il colore di sfondo,
+        il colore primario e il colore del testo.
       </Text>
       <TouchableOpacity style={styles.previewButton}>
         <Text style={styles.previewButtonText}>Pulsante di esempio</Text>

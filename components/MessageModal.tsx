@@ -1,8 +1,16 @@
 // File: components/MessageModal.tsx
 
-import React, { useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import React, { useState } from "react";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface MessageModalProps {
   visible: boolean;
@@ -11,9 +19,14 @@ interface MessageModalProps {
   onSend: (message: string) => void;
 }
 
-const MessageModal = ({ visible, onClose, requestTitle, onSend }: MessageModalProps) => {
+const MessageModal = ({
+  visible,
+  onClose,
+  requestTitle,
+  onSend,
+}: MessageModalProps) => {
   const { theme } = useTheme();
-  const [messageText, setMessageText] = useState('');
+  const [messageText, setMessageText] = useState("");
   const MAX_CHARS = 500;
   const charsRemaining = MAX_CHARS - messageText.length;
   const isCloseToLimit = charsRemaining <= 50;
@@ -32,24 +45,24 @@ const MessageModal = ({ visible, onClose, requestTitle, onSend }: MessageModalPr
       backgroundColor: theme.colors.cardBorder,
     },
     buttonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
+      flexDirection: "row",
+      justifyContent: "space-around",
       marginTop: 20,
     },
     centeredView: {
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: "center",
+      backgroundColor: theme.colors.cardBackground,
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
       padding: 20,
     },
     counterContainer: {
-      flexDirection: 'row',
-      justifyContent: 'flex-end',
+      flexDirection: "row",
+      justifyContent: "flex-end",
       marginTop: 5,
     },
     counterText: {
-      color: isCloseToLimit ? '#dc3545' : theme.colors.textSecondary,
+      color: isCloseToLimit ? theme.colors.error : theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.small,
     },
     modalTitle: {
@@ -57,42 +70,47 @@ const MessageModal = ({ visible, onClose, requestTitle, onSend }: MessageModalPr
       fontSize: theme.typography.fontSizes.medium,
       fontWeight: theme.typography.fontWeights.bold,
       marginBottom: 15,
-      textAlign: 'center',
+      textAlign: "center",
     },
     modalView: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 10,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
       elevation: 5,
       maxWidth: 400,
       padding: 25,
-      width: '100%',
+      width: "100%",
     },
     textInput: {
       backgroundColor: theme.colors.background,
-      borderColor: isCloseToLimit ? '#dc3545' : theme.colors.cardBorder,
+      borderColor: isCloseToLimit ? theme.colors.error : theme.colors.cardBorder,
       borderRadius: 5,
       borderWidth: 1,
       color: theme.colors.text,
       fontSize: theme.typography.fontSizes.small,
       minHeight: 120,
       padding: 10,
-      textAlignVertical: 'top',
+      textAlignVertical: "top",
     },
     textStyle: {
       color: theme.colors.headerText,
-      fontWeight: 'bold',
-      textAlign: 'center',
+      fontWeight: "bold",
+      textAlign: "center",
     },
   });
 
   const handleSend = () => {
     onSend(messageText);
-    setMessageText('');
+    setMessageText("");
   };
 
   return (
-    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>R: {requestTitle}</Text>
@@ -115,7 +133,10 @@ const MessageModal = ({ visible, onClose, requestTitle, onSend }: MessageModalPr
             <TouchableOpacity style={styles.button} onPress={handleSend}>
               <Text style={styles.textStyle}>Invia</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.buttonCancel]} onPress={onClose}>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonCancel]}
+              onPress={onClose}
+            >
               <Text style={styles.textStyle}>Annulla</Text>
             </TouchableOpacity>
           </View>

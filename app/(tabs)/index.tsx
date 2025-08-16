@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -7,12 +7,13 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  View
-} from 'react-native';
-import EventCard from '../../components/EventCard';
-import EventDetailModal from '../../components/EventDetailModal';
-import { useTheme } from '../../contexts/theme';
-import { Evento, useEvents } from '../../hooks/useEvents';
+  View,
+} from "react-native";
+
+import EventCard from "../../components/EventCard";
+import EventDetailModal from "../../components/EventDetailModal";
+import { useTheme } from "../../contexts/theme";
+import { Evento, useEvents } from "../../hooks/useEvents";
 
 export default function App() {
   const { theme } = useTheme();
@@ -54,18 +55,18 @@ export default function App() {
     container: {
       backgroundColor: theme.colors.background,
       flex: 1,
-      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+      paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
     errorText: {
       color: theme.colors.text,
       fontSize: theme.typography.fontSizes.medium,
-      textAlign: 'center',
+      textAlign: "center",
     },
     header: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: theme.colors.headerBackground,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
+      flexDirection: "row",
+      justifyContent: "space-between",
       paddingHorizontal: 20,
       paddingVertical: 15,
     },
@@ -74,13 +75,13 @@ export default function App() {
       fontSize: theme.typography.fontSizes.large,
       fontWeight: theme.typography.fontWeights.bold,
     },
-    loadingContainer: {
-      alignItems: 'center',
-      flex: 1,
-      justifyContent: 'center',
+    listContent: {
+      padding: 10,
     },
-    themeButton: {
-      padding: 5,
+    loadingContainer: {
+      alignItems: "center",
+      flex: 1,
+      justifyContent: "center",
     },
   });
 
@@ -106,7 +107,7 @@ export default function App() {
           renderItem={({ item }) => (
             <EventCard event={item} onPress={() => handleCardPress(item)} />
           )}
-          contentContainerStyle={{ padding: 10 }}
+          contentContainerStyle={styles.listContent}
         />
       )}
       <EventDetailModal
@@ -117,7 +118,6 @@ export default function App() {
     </SafeAreaView>
   );
 }
-
 
 /*
 // File: app/(tabs)/index.tsx (versione aggiornata)

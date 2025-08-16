@@ -1,21 +1,45 @@
 // File: images.d.ts
 
-declare module '*.png' {
+declare module "*.png" {
+  const value: number;
+  export default value;
+}
+
+declare module "*.jpg" {
+  const value: number;
+  export default value;
+}
+
+declare module "*.jpeg" {
+  const value: number;
+  export default value;
+}
+
+declare module "*.gif" {
+  const value: number;
+  export default value;
+}
+
+/*
+// File: images.d.ts
+
+declare module "*.png" {
   const value: any;
   export default value;
 }
 
-declare module '*.jpg' {
+declare module "*.jpg" {
   const value: any;
   export default value;
 }
 
-declare module '*.jpeg' {
+declare module "*.jpeg" {
   const value: any;
   export default value;
 }
 
-declare module '*.gif' {
+declare module "*.gif" {
   const value: any;
   export default value;
 }
+*/

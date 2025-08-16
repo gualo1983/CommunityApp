@@ -1,10 +1,11 @@
 // File: hooks/useRequestsLogic.ts
 
-import { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
-import { useSupabase } from '../contexts/SupabaseProvider';
-import { Request, SupabaseRequestResponse } from '../interfaces/request';
-import { getUrgency } from '../utils/requests';
+import { useEffect, useState } from "react";
+import { Alert } from "react-native";
+
+import { useSupabase } from "../contexts/SupabaseProvider";
+import { Request, SupabaseRequestResponse } from "../interfaces/request";
+import { getUrgency } from "../utils/requests";
 
 export const useRequestsLogic = () => {
   const { supabase } = useSupabase();
@@ -20,33 +21,44 @@ export const useRequestsLogic = () => {
       setIsLoading(true);
       setError(null);
       try {
-        const { data, error } = await supabase
-          .from('richieste')
-          .select('id, titolo, descrizione_breve, descrizione_estesa, data_creazione, data_scadenza')
-          .order('data_scadenza', { ascending: true });
-        
-        if (error) {
-          throw error;
+        const { data, error: fetchError } = await supabase
+          .from("richieste")
+          .select(
+            "id, titolo, descrizione_breve, descrizione_estesa, data_creazione, data_scadenza",
+          )
+          .order("data_scadenza", { ascending: true });
+
+        if (fetchError) {
+          throw fetchError;
         }
 
-        const mappedRequests: Request[] = data.map((req: SupabaseRequestResponse) => {
-          // Accedi direttamente alla proprietà 'dettagli'
-          const longDescription = req.descrizione_estesa.dettagli;
+        const mappedRequests: Request[] = data.map(
+          (req: SupabaseRequestResponse) => {
+            // Accedi direttamente alla proprietà 'dettagli'
+            const longDescription = req.descrizione_estesa.dettagli;
 
-          return {
-            id: req.id,
-            title: req.titolo,
-            shortDescription: req.descrizione_breve,
-            longDescription: longDescription,
-            createdAt: new Date(req.data_creazione),
-            expiresAt: new Date(req.data_scadenza),
-          };
-        });
+            return {
+              id: req.id,
+              title: req.titolo,
+              shortDescription: req.descrizione_breve,
+              longDescription: longDescription,
+              createdAt: new Date(req.data_creazione),
+              expiresAt: new Date(req.data_scadenza),
+            };
+          },
+        );
 
         setRequests(mappedRequests);
-      } catch (err: any) {
-        console.error('Errore nel recupero delle richieste:', err);
-        setError('Impossibile caricare le richieste. Riprova più tardi.');
+      } catch (err: unknown) {
+        console.error("Errore nel recupero delle richieste:", err);
+        if (err instanceof Error) {
+          setError(
+            err.message ||
+              "Impossibile caricare le richieste. Riprova più tardi.",
+          );
+        } else {
+          setError("Impossibile caricare le richieste. Errore sconosciuto.");
+        }
       } finally {
         setIsLoading(false);
       }
@@ -62,7 +74,7 @@ export const useRequestsLogic = () => {
 
     return urgencyOrder[urgencyA] - urgencyOrder[urgencyB];
   });
-  
+
   const openRequestModal = (request: Request) => {
     setSelectedRequest(request);
     setModalVisible(true);
@@ -80,8 +92,14 @@ export const useRequestsLogic = () => {
 
   const handleMessageSend = (message: string) => {
     if (selectedRequest) {
-      console.log(`Messaggio per la richiesta ${selectedRequest.id} inviato:`, message);
-      Alert.alert('Messaggio Inviato', 'Il tuo messaggio è stato inviato con successo.');
+      console.log(
+        `Messaggio per la richiesta ${selectedRequest.id} inviato:`,
+        message,
+      );
+      Alert.alert(
+        "Messaggio Inviato",
+        "Il tuo messaggio è stato inviato con successo.",
+      );
     }
     setIsMessageModalVisible(false);
   };

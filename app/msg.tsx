@@ -1,13 +1,23 @@
 // File: msg.tsx
 
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import React from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import ConversationCard from '../components/ConversationCard';
-import ConversationDetailModal from '../components/ConversationDetailModal';
-import { useTheme } from '../contexts/theme';
-import { useMessagesLogic } from '../hooks/useMessagesLogic';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Stack, useRouter } from "expo-router";
+import React from "react";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  useWindowDimensions,
+  View,
+} from "react-native";
+
+import ConversationCard from "../components/ConversationCard";
+import ConversationDetailModal from "../components/ConversationDetailModal";
+import { useTheme } from "../contexts/theme";
+import { useMessagesLogic } from "../hooks/useMessagesLogic";
 
 const MessagesScreen = () => {
   const { theme } = useTheme();
@@ -34,35 +44,35 @@ const MessagesScreen = () => {
       flex: 1,
       padding: 20,
       ...(isLargeScreen && {
-        alignItems: 'center',
+        alignItems: "center",
       }),
     },
     headerBackButton: {
       marginLeft: 10,
     },
+    loadingContainer: {
+      alignItems: "center",
+      flex: 1,
+      justifyContent: "center",
+    },
     placeholderText: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.medium,
-      textAlign: 'center',
+      textAlign: "center",
     },
     scrollContent: {
-      maxWidth: isLargeScreen ? 400 : '100%',
+      maxWidth: isLargeScreen ? 400 : "100%",
       paddingHorizontal: isLargeScreen ? 0 : 10,
-      width: '100%',
+      width: "100%",
     },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-    }
   });
 
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Messaggi',
-          headerTitleAlign: 'center',
+          title: "Messaggi",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: theme.colors.headerBackground,
           },
@@ -73,32 +83,41 @@ const MessagesScreen = () => {
           },
           headerTintColor: theme.colors.headerText,
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
-              <MaterialCommunityIcons name="arrow-left" size={24} color={theme.colors.headerText} />
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.headerBackButton}
+            >
+              <MaterialCommunityIcons
+                name="arrow-left"
+                size={24}
+                color={theme.colors.headerText}
+              />
             </TouchableOpacity>
           ),
         }}
       />
       <View style={styles.content}>
         {isLoading ? (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
-                <Text style={styles.placeholderText}>Caricamento messaggi...</Text>
-            </View>
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={theme.colors.primary} />
+            <Text style={styles.placeholderText}>Caricamento messaggi...</Text>
+          </View>
         ) : sortedConversations.length > 0 ? (
-            <ScrollView contentContainerStyle={styles.scrollContent}>
-              {sortedConversations.map((conv) => (
-                <ConversationCard
-                  key={conv.id}
-                  conversation={conv}
-                  onPress={() => openConversation(conv)}
-                />
-              ))}
-            </ScrollView>
+          <ScrollView contentContainerStyle={styles.scrollContent}>
+            {sortedConversations.map((conv) => (
+              <ConversationCard
+                key={conv.id}
+                conversation={conv}
+                onPress={() => openConversation(conv)}
+              />
+            ))}
+          </ScrollView>
         ) : (
-            <View style={styles.loadingContainer}>
-                <Text style={styles.placeholderText}>Nessun messaggio ricevuto.</Text>
-            </View>
+          <View style={styles.loadingContainer}>
+            <Text style={styles.placeholderText}>
+              Nessun messaggio ricevuto.
+            </Text>
+          </View>
         )}
       </View>
       <ConversationDetailModal
@@ -112,8 +131,6 @@ const MessagesScreen = () => {
 };
 
 export default MessagesScreen;
-
-
 
 /*
 // File: msg.tsx

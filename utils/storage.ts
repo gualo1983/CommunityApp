@@ -1,9 +1,9 @@
 // File: utils/storage.ts
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Verifica se stiamo eseguendo l'app sul web
-const isWeb = typeof window !== 'undefined';
+const isWeb = typeof window !== "undefined";
 
 // Wrapper per getItem
 export const getItem = async (key: string): Promise<string | null> => {

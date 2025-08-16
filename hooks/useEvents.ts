@@ -1,8 +1,9 @@
 // File: hooks/useEvents.ts
 
-import { useEffect, useState } from 'react';
-import { useSupabase } from '../contexts/SupabaseProvider';
-import { getItem, setItem } from '../utils/storage'; // Importa i nuovi wrapper
+import { useEffect, useState } from "react";
+
+import { useSupabase } from "../contexts/SupabaseProvider";
+import { getItem, setItem } from "../utils/storage"; // Importa i nuovi wrapper
 
 // Interfaccia per i dati della parrocchia recuperati dalla join
 export interface Parrocchia {
@@ -22,7 +23,7 @@ export interface Evento {
   image_text?: string;
   description?: string;
   external_link?: string;
-  parrocchie: Parrocchia; 
+  parrocchie: Parrocchia;
   isLiked: boolean;
 }
 
@@ -39,7 +40,7 @@ export const useEvents = () => {
 
       try {
         // 1. Tenta di caricare gli eventi dalla cache usando il wrapper
-        const cachedEvents = await getItem('events');
+        const cachedEvents = await getItem("events");
         if (cachedEvents) {
           setEvents(JSON.parse(cachedEvents) as Evento[]);
           setError(null);
@@ -48,27 +49,31 @@ export const useEvents = () => {
         }
 
         // 2. Recupera i dati aggiornati dal database
-        const { data, error } = await supabase
-          .from('eventi')
-          .select('*, parrocchie(name, citta)')
-          .order('data', { ascending: true });
+        const { data, error: fetchError } = await supabase
+          .from("eventi")
+          .select("*, parrocchie(name, citta)")
+          .order("data", { ascending: true });
 
-        if (error) {
-          throw error;
+        if (fetchError) {
+          throw fetchError;
         }
 
         // 3. Salva i nuovi dati in cache usando il wrapper
         if (data) {
-          await setItem('events', JSON.stringify(data));
+          await setItem("events", JSON.stringify(data));
           setEvents(data as Evento[]);
         }
-        
+
         setError(null);
-      } catch (err: any) {
-        console.error("Errore nel recupero degli eventi:", err.message);
-        setError("Impossibile caricare gli eventi.");
-        
-        const cachedEvents = await getItem('events');
+      } catch (err: unknown) {
+        console.error("Errore nel recupero degli eventi:", err);
+        if (err instanceof Error) {
+          setError(err.message || "Impossibile caricare gli eventi.");
+        } else {
+          setError("Impossibile caricare gli eventi. Errore sconosciuto.");
+        }
+
+        const cachedEvents = await getItem("events");
         if (!cachedEvents) {
           setEvents([]);
         }
@@ -82,8 +87,6 @@ export const useEvents = () => {
 
   return { events, isLoading, error };
 };
-
-
 
 /*
 // File: hooks/useEvents.ts

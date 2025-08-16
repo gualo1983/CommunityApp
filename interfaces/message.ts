@@ -20,7 +20,6 @@ export interface Conversation {
   otherParticipantName: string;
 }
 
-
 /*
 // File: interfaces/message.ts
 

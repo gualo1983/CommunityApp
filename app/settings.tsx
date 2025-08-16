@@ -1,7 +1,8 @@
-import { Stack } from 'expo-router';
-import React from 'react';
-import { SettingsPageUI } from '../components/SettingsPageUI';
-import { useTheme } from '../contexts/theme';
+import { Stack } from "expo-router";
+import React from "react";
+
+import { SettingsPageUI } from "../components/SettingsPageUI";
+import { useTheme } from "../contexts/theme";
 
 export default function SettingsPage() {
   const { theme } = useTheme();
@@ -10,8 +11,8 @@ export default function SettingsPage() {
     <>
       <Stack.Screen
         options={{
-          title: 'Impostazioni',
-          headerTitleAlign: 'center',
+          title: "Impostazioni",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: theme.colors.headerBackground,
           },

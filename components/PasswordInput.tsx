@@ -1,7 +1,14 @@
-import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface PasswordValidation {
   hasMinLength: boolean;
@@ -44,70 +51,82 @@ const PasswordInput = ({
       return colors.primary;
     }
     if (isConfirm) {
-      return value.length > 0 && !isPasswordMatch ? colors.error : colors.cardBorder;
+      return value.length > 0 && !isPasswordMatch
+        ? colors.error
+        : colors.cardBorder;
     }
-    return value.length > 0 && !isPasswordValid ? colors.error : colors.cardBorder;
+    return value.length > 0 && !isPasswordValid
+      ? colors.error
+      : colors.cardBorder;
   };
 
   const styles = StyleSheet.create({
-    label: {
-      marginTop: 15,
-      marginBottom: 5,
-      color: colors.text,
-      fontSize: typography.fontSizes.default,
-    },
-    passwordContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderRadius: 8,
-      borderColor: getBorderColor(),
+    eyeIcon: {
+      padding: 10,
+      position: "absolute",
+      right: 15,
     },
     inputPassword: {
+      color: colors.text,
       flex: 1,
+      fontSize: typography.fontSizes.default,
       height: 50,
       paddingLeft: 15,
       paddingRight: 50,
+    },
+    label: {
       color: colors.text,
       fontSize: typography.fontSizes.default,
+      marginBottom: 5,
+      marginTop: 15,
     },
-    eyeIcon: {
-      position: 'absolute',
-      right: 15,
-      padding: 10,
+    matchErrorContainer: {
+      marginTop: 10,
+    },
+    passwordContainer: {
+      alignItems: "center",
+      borderColor: getBorderColor(),
+      borderRadius: 8,
+      borderWidth: 1,
+      flexDirection: "row",
+    },
+    passwordCounter: {
+      color: colors.textSecondary,
+      fontSize: typography.fontSizes.small,
+    },
+    passwordValidationContainer: {
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      marginTop: 5,
     },
     validationItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: "center",
+      flexDirection: "row",
       marginBottom: 2,
+    },
+    validationSection: {
+      marginTop: 5,
     },
     validationText: {
       fontSize: typography.fontSizes.small,
       marginLeft: 5,
     },
-    passwordValidationContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginTop: 5,
-    },
-    passwordCounter: {
-      fontSize: typography.fontSizes.small,
-      color: colors.textSecondary,
-    },
-    validationSection: {
-      marginTop: 5,
-    }
   });
 
   const renderValidationItem = (isValid: boolean, text: string) => (
     <View style={styles.validationItem}>
       <Ionicons
-        name={isValid ? 'checkmark-circle' : 'close-circle'}
+        name={isValid ? "checkmark-circle" : "close-circle"}
         size={12}
         color={isValid ? colors.primary : colors.error}
       />
-      <Text style={[styles.validationText, { color: isValid ? colors.text : colors.textSecondary }]}>
+      <Text
+        style={[
+          styles.validationText,
+          { color: isValid ? colors.text : colors.textSecondary },
+        ]}
+      >
         {text}
       </Text>
     </View>
@@ -117,10 +136,7 @@ const PasswordInput = ({
     <View>
       <Text style={styles.label}>{label}</Text>
       <View
-        style={[
-          styles.passwordContainer,
-          { borderColor: getBorderColor() },
-        ]}
+        style={[styles.passwordContainer, { borderColor: getBorderColor() }]}
       >
         <TextInput
           style={styles.inputPassword}
@@ -137,7 +153,7 @@ const PasswordInput = ({
           style={styles.eyeIcon}
         >
           <Ionicons
-            name={showPassword ? 'eye-off' : 'eye'}
+            name={showPassword ? "eye-off" : "eye"}
             size={20}
             color={colors.textSecondary}
           />
@@ -148,22 +164,34 @@ const PasswordInput = ({
       {!isConfirm && passwordValidation && (
         <>
           <View style={styles.passwordValidationContainer}>
-            {renderValidationItem(passwordValidation.hasMinLength, 'Almeno 8 caratteri')}
+            {renderValidationItem(
+              passwordValidation.hasMinLength,
+              "Almeno 8 caratteri",
+            )}
             <Text style={styles.passwordCounter}>{value.length}</Text>
           </View>
           <View style={styles.validationSection}>
-            {renderValidationItem(passwordValidation.hasUppercase, 'Una lettera maiuscola')}
-            {renderValidationItem(passwordValidation.hasLowercase, 'Una lettera minuscola')}
-            {renderValidationItem(passwordValidation.hasNumber, 'Un numero')}
-            {renderValidationItem(passwordValidation.hasSymbol, 'Un carattere speciale')}
+            {renderValidationItem(
+              passwordValidation.hasUppercase,
+              "Una lettera maiuscola",
+            )}
+            {renderValidationItem(
+              passwordValidation.hasLowercase,
+              "Una lettera minuscola",
+            )}
+            {renderValidationItem(passwordValidation.hasNumber, "Un numero")}
+            {renderValidationItem(
+              passwordValidation.hasSymbol,
+              "Un carattere speciale",
+            )}
           </View>
         </>
       )}
 
       {/* Sezione di validazione per la conferma password */}
       {isConfirm && value.length > 0 && !isPasswordMatch && (
-        <View style={{ marginTop: 10 }}>
-          {renderValidationItem(false, 'Le password non corrispondono.')}
+        <View style={styles.matchErrorContainer}>
+          {renderValidationItem(false, "Le password non corrispondono.")}
         </View>
       )}
     </View>

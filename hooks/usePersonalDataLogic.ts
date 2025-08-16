@@ -1,7 +1,8 @@
-import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../contexts/AuthProvider';
-import { useSupabase } from '../contexts/SupabaseProvider';
+import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useSupabase } from "../contexts/SupabaseProvider";
 
 // Interfaccia per le parrocchie
 interface Parrocchia {
@@ -21,12 +22,13 @@ export const usePersonalDataLogic = () => {
 
   // Stato per i dati del profilo
   const [primoLogin, setPrimoLogin] = useState(true);
-  const [nome, setNome] = useState('');
-  const [cognome, setCognome] = useState('');
-  const [email, setEmail] = useState('');
-  const [comuneResidenza, setComuneResidenza] = useState('');
-  const [dataNascita, setDataNascita] = useState('');
-  const [parrocchiaRiferimentoId, setParrocchiaRiferimentoId] = useState<string>('');
+  const [nome, setNome] = useState("");
+  const [cognome, setCognome] = useState("");
+  const [email, setEmail] = useState("");
+  const [comuneResidenza, setComuneResidenza] = useState("");
+  const [dataNascita, setDataNascita] = useState("");
+  const [parrocchiaRiferimentoId, setParrocchiaRiferimentoId] =
+    useState<string>("");
 
   // Stato per le opzioni delle parrocchie
   const [parrocchie, setParrocchie] = useState<Parrocchia[]>([]);
@@ -34,7 +36,7 @@ export const usePersonalDataLogic = () => {
   // Stati per la UI
   const [isLoading, setIsLoading] = useState(false);
   const [isFetchingData, setIsFetchingData] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isDataFetched, setIsDataFetched] = useState(false);
 
@@ -48,38 +50,39 @@ export const usePersonalDataLogic = () => {
         setIsFetchingData(false);
         return;
       }
-      
+
       setIsFetchingData(true);
       try {
         // Recupera i dati dell'utente
         const { data: userData, error: userError } = await supabase
-          .from('utenti')
-          .select('nome, cognome, email, comune_residenza, data_nascita, primo_login, parrocchia_riferimento_id')
-          .eq('id', user.id)
+          .from("utenti")
+          .select(
+            "nome, cognome, email, comune_residenza, data_nascita, primo_login, parrocchia_riferimento_id",
+          )
+          .eq("id", user.id)
           .single();
 
         if (userError) throw userError;
 
         if (userData) {
-          setNome(userData.nome || '');
-          setCognome(userData.cognome || '');
-          setEmail(userData.email || '');
-          setComuneResidenza(userData.comune_residenza || '');
-          setDataNascita(userData.data_nascita || '');
+          setNome(userData.nome || "");
+          setCognome(userData.cognome || "");
+          setEmail(userData.email || "");
+          setComuneResidenza(userData.comune_residenza || "");
+          setDataNascita(userData.data_nascita || "");
           setPrimoLogin(userData.primo_login);
-          setParrocchiaRiferimentoId(userData.parrocchia_riferimento_id || '');
+          setParrocchiaRiferimentoId(userData.parrocchia_riferimento_id || "");
         }
 
         // Recupera tutte le parrocchie
         const { data: parrocchieData, error: parrocchieError } = await supabase
-          .from('parrocchie')
-          .select('id, name, citta');
+          .from("parrocchie")
+          .select("id, name, citta");
 
         if (parrocchieError) throw parrocchieError;
-        
+
         setParrocchie(parrocchieData);
         setIsDataFetched(true);
-
       } catch (err) {
         console.error("Errore nel recupero dei dati:", err);
         setError("Impossibile caricare i dati. Riprova.");
@@ -87,7 +90,7 @@ export const usePersonalDataLogic = () => {
         setIsFetchingData(false);
       }
     };
-    
+
     fetchData();
   }, [user, supabase, isDataFetched]);
 
@@ -110,13 +113,15 @@ export const usePersonalDataLogic = () => {
       setError("Utente non autenticato. Riprova il login.");
       return;
     }
-    
+
     setIsLoading(true);
-    setError(''); // Pulisce l'errore all'inizio del salvataggio
+    setError(""); // Pulisce l'errore all'inizio del salvataggio
 
     try {
       if (!comuneResidenza || !dataNascita || !isEmailValid(email)) {
-        setError('Si prega di compilare tutti i campi obbligatori e inserire un\'email valida.');
+        setError(
+          "Si prega di compilare tutti i campi obbligatori e inserire un'email valida.",
+        );
         setIsLoading(false);
         return;
       }
@@ -126,13 +131,17 @@ export const usePersonalDataLogic = () => {
       if (email !== user.email) {
         // Logga l'email che viene inviata per debugging
         console.log("Tentativo di aggiornare l'email a:", email);
-        
-        const { error: authUpdateError } = await supabase.auth.updateUser({ email });
+
+        const { error: authUpdateError } = await supabase.auth.updateUser({
+          email,
+        });
         if (authUpdateError) {
           // Logga l'intero oggetto errore per debugging
           console.error("Errore completo da Supabase:", authUpdateError);
           // Gestione specifica dell'errore di validazione dell'email di Supabase
-          setError(`L'indirizzo email non è valido per il sistema di autenticazione di Supabase: ${authUpdateError.message}`);
+          setError(
+            `L'indirizzo email non è valido per il sistema di autenticazione di Supabase: ${authUpdateError.message}`,
+          );
           setIsLoading(false);
           return;
         }
@@ -143,25 +152,25 @@ export const usePersonalDataLogic = () => {
 
       // 2. Aggiorna gli altri dati nella tua tabella personalizzata 'utenti'
       const { error: updateError } = await supabase
-        .from('utenti')
+        .from("utenti")
         .update({
           email: email,
           comune_residenza: comuneResidenza,
           data_nascita: dataNascita,
-          primo_login: false, 
+          primo_login: false,
           parrocchia_riferimento_id: parrocchiaRiferimentoId,
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) {
         throw updateError;
       }
 
-      console.log('Profilo utente aggiornato con successo!');
+      console.log("Profilo utente aggiornato con successo!");
       setShowConfirmation(true); // Mostra il popup di conferma
     } catch (err) {
-      console.error('Errore nel salvataggio dei dati personali:', err);
-      setError('Si è verificato un errore nel salvataggio. Riprova.');
+      console.error("Errore nel salvataggio dei dati personali:", err);
+      setError("Si è verificato un errore nel salvataggio. Riprova.");
     } finally {
       setIsLoading(false);
     }
@@ -170,7 +179,7 @@ export const usePersonalDataLogic = () => {
   // Funzione per gestire la chiusura del modal e il reindirizzamento
   const handleModalClose = () => {
     setShowConfirmation(false);
-    router.push('/');
+    router.push("/");
   };
 
   return {
@@ -196,8 +205,6 @@ export const usePersonalDataLogic = () => {
     handleModalClose,
   };
 };
-
-
 
 /*
 import { useRouter } from 'expo-router';

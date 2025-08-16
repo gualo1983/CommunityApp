@@ -1,27 +1,28 @@
 // File: _layouts.tsx
 
-import { useFonts } from 'expo-font';
-import { SplashScreen, Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import React, { useContext, useEffect, useState } from 'react';
+import { useFonts } from "expo-font";
+import { SplashScreen, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import React, { useContext, useEffect, useState } from "react";
 
 // Importa i wrapper per lo storage
-import { getItem } from '../utils/storage';
-
+import { getItem } from "../utils/storage";
 // Importa i provider e gli hook dal contesto centralizzato
-import ErrorBoundary from '../components/ErrorBoundary';
-import { AuthProvider } from '../contexts/AuthProvider';
-import { SupabaseProvider } from '../contexts/SupabaseProvider';
-import { ThemeContext, ThemeProvider } from '../contexts/theme';
+import ErrorBoundary from "../components/ErrorBoundary";
+import { AuthProvider } from "../contexts/AuthProvider";
+import { SupabaseProvider } from "../contexts/SupabaseProvider";
+import { ThemeContext, ThemeProvider } from "../contexts/theme";
 
 // Impedisci allo splash screen di nascondersi automaticamente
 SplashScreen.preventAutoHideAsync();
 
 function RootLayoutContent() {
-  const { setTheme, setFontSizeOption, setCustomColors } = useContext(ThemeContext)!;
+  const { setTheme, setFontSizeOption, setCustomColors } =
+    useContext(ThemeContext)!;
   const [isLoaded, setIsLoaded] = useState(false);
   const [fontsLoaded, fontError] = useFonts({
-    'SpaceMono': require('../assets/fonts/SpaceMono-Regular.ttf'),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
 
   // Questo useEffect ora ha un array di dipendenze vuoto `[]`.
@@ -32,32 +33,32 @@ function RootLayoutContent() {
     async function initializeApp() {
       try {
         // Usa il wrapper getItem per leggere i dati
-        const storedTheme = await getItem('appTheme');
-        const storedFontSize = await getItem('appFontSize');
-        const storedCustomColors = await getItem('customColors');
-        
-        // Applica le impostazioni caricate. 
+        const storedTheme = await getItem("appTheme");
+        const storedFontSize = await getItem("appFontSize");
+        const storedCustomColors = await getItem("customColors");
+
+        // Applica le impostazioni caricate.
         if (storedTheme) {
-          setTheme(storedTheme as 'light' | 'dark' | 'custom');
+          setTheme(storedTheme as "light" | "dark" | "custom");
         }
         if (storedFontSize) {
-          setFontSizeOption(storedFontSize as 'small' | 'medium' | 'large');
+          setFontSizeOption(storedFontSize as "small" | "medium" | "large");
         }
         if (storedCustomColors) {
           try {
             setCustomColors(JSON.parse(storedCustomColors));
           } catch (e) {
-            console.warn('Errore nel parsing dei colori personalizzati:', e);
+            console.warn("Errore nel parsing dei colori personalizzati:", e);
           }
         }
       } catch (e) {
-        console.warn('Errore nel caricamento delle impostazioni iniziali:', e);
+        console.warn("Errore nel caricamento delle impostazioni iniziali:", e);
       } finally {
         setIsLoaded(true);
       }
     }
     initializeApp();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Array di dipendenze vuoto per eseguire l'effetto una sola volta.
 
   useEffect(() => {
@@ -69,13 +70,16 @@ function RootLayoutContent() {
   if (!isLoaded || (!fontsLoaded && !fontError)) {
     return null;
   }
- 
+
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="msg" options={{ title: 'Messaggi' }} />
-      <Stack.Screen name="PersonalDataPage" options={{ title: 'Dati Personali' }} />
-      <Stack.Screen name="settings" options={{ title: 'Impostazioni' }} />
+      <Stack.Screen name="msg" options={{ title: "Messaggi" }} />
+      <Stack.Screen
+        name="PersonalDataPage"
+        options={{ title: "Dati Personali" }}
+      />
+      <Stack.Screen name="settings" options={{ title: "Impostazioni" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
@@ -95,9 +99,6 @@ export default function RootLayout() {
     </SupabaseProvider>
   );
 }
-
-
-
 
 /*
 // File: _layouts.tsx

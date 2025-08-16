@@ -1,16 +1,17 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Stack, useRouter } from 'expo-router';
-import React from 'react';
+import { Ionicons } from "@expo/vector-icons";
+import { Stack, useRouter } from "expo-router";
+import React from "react";
 import {
-    ActivityIndicator,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import PasswordInput from '../../components/PasswordInput';
-import { useTheme } from '../../contexts/theme';
-import { useForgotPassword } from '../../hooks/useForgotPassword';
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import PasswordInput from "../../components/PasswordInput";
+import { useTheme } from "../../contexts/theme";
+import { useForgotPassword } from "../../hooks/useForgotPassword";
 
 const NewPasswordForm = () => {
   const router = useRouter();
@@ -38,49 +39,56 @@ const NewPasswordForm = () => {
   const isFormValid = isPasswordValid && isPasswordMatch;
 
   const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: colors.background,
-      justifyContent: 'center',
-      alignItems: 'center',
-      padding: 20,
-    },
-    title: {
-      fontSize: typography.fontSizes.large,
-      fontWeight: typography.fontWeights.bold,
-      color: colors.text,
-      marginBottom: 20,
-      textAlign: 'center',
-    },
-    message: {
-      fontSize: typography.fontSizes.default,
-      color: colors.text,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
     button: {
-      height: 50,
-      width: '100%',
+      alignItems: "center",
       borderRadius: 8,
-      justifyContent: 'center',
-      alignItems: 'center',
+      height: 50,
+      justifyContent: "center",
       marginTop: 20,
+      width: "100%",
     },
     buttonText: {
       color: colors.headerText,
       fontSize: typography.fontSizes.medium,
     },
+    container: {
+      alignItems: "center",
+      backgroundColor: colors.background,
+      flex: 1,
+      justifyContent: "center",
+      padding: 20,
+    },
+    contentWrapper: {
+      maxWidth: 400,
+      width: "100%",
+    },
     errorText: {
-      textAlign: 'center',
-      marginBottom: 10,
       color: colors.error,
+      marginBottom: 10,
+      textAlign: "center",
+    },
+    headerBackButton: {
+      marginLeft: 10,
+    },
+    message: {
+      color: colors.text,
+      fontSize: typography.fontSizes.default,
+      marginBottom: 20,
+      textAlign: "center",
     },
     successMessage: {
+      color: colors.primary,
       fontSize: typography.fontSizes.large,
       fontWeight: typography.fontWeights.bold,
-      color: colors.primary,
-      textAlign: 'center',
       marginBottom: 20,
+      textAlign: "center",
+    },
+    title: {
+      color: colors.text,
+      fontSize: typography.fontSizes.large,
+      fontWeight: typography.fontWeights.bold,
+      marginBottom: 20,
+      textAlign: "center",
     },
   });
 
@@ -88,8 +96,8 @@ const NewPasswordForm = () => {
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Nuova Password',
-          headerTitleAlign: 'center',
+          title: "Nuova Password",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: colors.headerBackground,
           },
@@ -100,13 +108,16 @@ const NewPasswordForm = () => {
           },
           headerTintColor: colors.headerText,
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 10 }}>
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={styles.headerBackButton}
+            >
               <Ionicons name="arrow-back" size={24} color={colors.text} />
             </TouchableOpacity>
           ),
         }}
       />
-      <View style={{ width: '100%', maxWidth: 400 }}>
+      <View style={styles.contentWrapper}>
         {passwordResetSuccess ? (
           <View>
             <Text style={styles.successMessage}>Password aggiornata!</Text>
@@ -115,7 +126,7 @@ const NewPasswordForm = () => {
             </Text>
             <TouchableOpacity
               style={[styles.button, { backgroundColor: colors.primary }]}
-              onPress={() => router.replace('/login')}
+              onPress={() => router.replace("/login")}
             >
               <Text style={styles.buttonText}>Torna al login</Text>
             </TouchableOpacity>
@@ -134,7 +145,7 @@ const NewPasswordForm = () => {
               passwordValidation={passwordValidation}
               isPasswordValid={isPasswordValid}
             />
-            
+
             <PasswordInput
               label="Conferma password"
               value={confirmPassword}
@@ -144,11 +155,15 @@ const NewPasswordForm = () => {
               isConfirm={true}
               isPasswordMatch={isPasswordMatch}
             />
-            
+
             <TouchableOpacity
               style={[
                 styles.button,
-                { backgroundColor: isFormValid ? colors.primary : colors.cardBorder },
+                {
+                  backgroundColor: isFormValid
+                    ? colors.primary
+                    : colors.cardBorder,
+                },
               ]}
               onPress={handleUpdatePassword}
               disabled={!isFormValid || isLoading}

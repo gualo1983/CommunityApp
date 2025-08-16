@@ -1,28 +1,37 @@
-import { useRouter } from 'expo-router';
-import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useAuth } from '../contexts/AuthProvider';
-import { useSupabase } from '../contexts/SupabaseProvider';
-import { useTheme } from '../contexts/theme';
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import { Alert } from "react-native";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useSupabase } from "../contexts/SupabaseProvider";
+import { useTheme } from "../contexts/theme";
 
 export const useSettingsLogic = () => {
   const { user } = useAuth();
   const { supabase } = useSupabase();
-  const { setTheme, themeName, fontSizeOption, setFontSizeOption, customColors, setCustomColors } = useTheme();
+  const {
+    setTheme,
+    themeName,
+    fontSizeOption,
+    setFontSizeOption,
+    customColors,
+    setCustomColors,
+  } = useTheme();
   const router = useRouter();
 
-    const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
-  const [isPersonalDataModalVisible, setIsPersonalDataModalVisible] = useState(false);
+  const [isPersonalDataModalVisible, setIsPersonalDataModalVisible] =
+    useState(false);
 
-  const handleThemeChange = (selectedTheme: 'light' | 'dark' | 'custom') => {
+  const handleThemeChange = (selectedTheme: "light" | "dark" | "custom") => {
     setTheme(selectedTheme);
-    if (selectedTheme === 'custom') {
-      router.push('/theme-settings');
+    if (selectedTheme === "custom") {
+      router.push("/theme-settings");
     }
   };
 
-  const handleFontSizeChange = (option: 'small' | 'medium' | 'large') => {
+  const handleFontSizeChange = (option: "small" | "medium" | "large") => {
     setFontSizeOption(option);
   };
 
@@ -31,31 +40,37 @@ export const useSettingsLogic = () => {
       Alert.alert("Errore", "Utente non autenticato. Riprova il login.");
       return;
     }
-    
+
     setIsSaving(true);
 
     try {
       const currentSettings = {
         themeName,
         fontSizeOption,
-        customColors: themeName === 'custom' ? customColors : undefined,
+        customColors: themeName === "custom" ? customColors : undefined,
       };
-      
+
       const { error: updateError } = await supabase
-        .from('utenti')
+        .from("utenti")
         .update({ impostazioni_app: currentSettings })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (updateError) {
         throw updateError;
       }
 
-      console.log('Impostazioni dell\'app salvate con successo:', currentSettings);
+      console.log(
+        "Impostazioni dell'app salvate con successo:",
+        currentSettings,
+      );
       Alert.alert("Successo", "Le impostazioni sono state salvate!");
-      router.replace('/');
+      router.replace("/");
     } catch (err) {
-      console.error('Errore nel salvataggio delle impostazioni:', err);
-      Alert.alert("Errore", "Si è verificato un errore nel salvataggio. Riprova.");
+      console.error("Errore nel salvataggio delle impostazioni:", err);
+      Alert.alert(
+        "Errore",
+        "Si è verificato un errore nel salvataggio. Riprova.",
+      );
     } finally {
       setIsSaving(false);
     }
@@ -71,9 +86,9 @@ export const useSettingsLogic = () => {
 
     try {
       const { data, error } = await supabase
-        .from('utenti')
-        .select('impostazioni_app')
-        .eq('id', user.id)
+        .from("utenti")
+        .select("impostazioni_app")
+        .eq("id", user.id)
         .single();
 
       if (error) {
@@ -93,8 +108,8 @@ export const useSettingsLogic = () => {
 
         if (savedSettings.customColors) {
           setCustomColors(savedSettings.customColors);
-          if (savedSettings.themeName !== 'custom') {
-            setTheme('custom');
+          if (savedSettings.themeName !== "custom") {
+            setTheme("custom");
           }
         }
 
@@ -103,10 +118,10 @@ export const useSettingsLogic = () => {
         Alert.alert("Attenzione", "Nessuna preferenza salvata trovata.");
       }
     } catch (err) {
-      console.error('Errore nell\'importazione delle preferenze:', err);
+      console.error("Errore nell'importazione delle preferenze:", err);
       Alert.alert(
         "Errore",
-        "Si è verificato un errore durante l\'importazione. Riprova più tardi."
+        "Si è verificato un errore durante l'importazione. Riprova più tardi.",
       );
     } finally {
       setIsImporting(false);
@@ -115,7 +130,7 @@ export const useSettingsLogic = () => {
 
   const handleOpenPersonalDataModal = () => {
     if (!user) {
-      router.push('/login');
+      router.push("/login");
       return;
     }
     setIsPersonalDataModalVisible(true);

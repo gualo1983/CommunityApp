@@ -1,7 +1,15 @@
 // File: components/EditTabModal.tsx
-import React, { useEffect, useState } from 'react';
-import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
+import React, { useEffect, useState } from "react";
+import {
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
 
 interface EditTabModalProps {
   visible: boolean;
@@ -10,7 +18,12 @@ interface EditTabModalProps {
   initialName: string;
 }
 
-const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalProps) => {
+const EditTabModal = ({
+  visible,
+  onClose,
+  onEdit,
+  initialName,
+}: EditTabModalProps) => {
   const { theme } = useTheme();
   const [newTabName, setNewTabName] = useState(initialName);
 
@@ -28,29 +41,29 @@ const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalPro
 
   const modalStyles = StyleSheet.create({
     button: {
-      alignItems: 'center',
+      alignItems: "center",
       borderRadius: 5,
-      minWidth: '45%',
+      minWidth: "45%",
       paddingHorizontal: 20,
       paddingVertical: 10,
     },
     buttonContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '100%',
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
     },
     buttonText: {
       color: theme.colors.headerText,
-      fontWeight: 'bold',
+      fontWeight: "bold",
     },
     cancelButton: {
       backgroundColor: theme.colors.textSecondary,
     },
     centeredView: {
-      alignItems: 'center',
-      backgroundColor: 'rgba(0,0,0,0.5)',
+      alignItems: "center",
+      backgroundColor: theme.colors.cardBackground,
       flex: 1,
-      justifyContent: 'center',
+      justifyContent: "center",
     },
     editButton: {
       backgroundColor: theme.colors.primary,
@@ -64,7 +77,7 @@ const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalPro
       height: 40,
       marginBottom: 20,
       paddingHorizontal: 10,
-      width: '100%',
+      width: "100%",
     },
     modalTitle: {
       color: theme.colors.text,
@@ -73,19 +86,24 @@ const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalPro
       marginBottom: 15,
     },
     modalView: {
-      alignItems: 'center',
+      alignItems: "center",
       backgroundColor: theme.colors.background,
       borderRadius: 10,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
       elevation: 5,
       maxWidth: 400,
       padding: 20,
-      width: '80%',
+      width: "80%",
     },
   });
 
   return (
-    <Modal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <View style={modalStyles.centeredView}>
         <View style={modalStyles.modalView}>
           <Text style={modalStyles.modalTitle}>Modifica nome tab</Text>
@@ -97,10 +115,16 @@ const EditTabModal = ({ visible, onClose, onEdit, initialName }: EditTabModalPro
             placeholderTextColor={theme.colors.textSecondary}
           />
           <View style={modalStyles.buttonContainer}>
-            <TouchableOpacity style={[modalStyles.button, modalStyles.cancelButton]} onPress={onClose}>
+            <TouchableOpacity
+              style={[modalStyles.button, modalStyles.cancelButton]}
+              onPress={onClose}
+            >
               <Text style={modalStyles.buttonText}>Annulla</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[modalStyles.button, modalStyles.editButton]} onPress={handleEdit}>
+            <TouchableOpacity
+              style={[modalStyles.button, modalStyles.editButton]}
+              onPress={handleEdit}
+            >
               <Text style={modalStyles.buttonText}>Salva</Text>
             </TouchableOpacity>
           </View>

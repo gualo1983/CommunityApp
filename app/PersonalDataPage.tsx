@@ -1,12 +1,24 @@
 // File: app/PersonalDataPage.tsx
 
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import { Stack } from 'expo-router';
-import React, { useState } from 'react';
-import { ActivityIndicator, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
-import { useTheme } from '../contexts/theme';
-import { usePersonalDataLogic } from '../hooks/usePersonalDataLogic';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import { Stack } from "expo-router";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  useWindowDimensions,
+  View,
+} from "react-native";
+
+import { useTheme } from "../contexts/theme";
+import { usePersonalDataLogic } from "../hooks/usePersonalDataLogic";
 
 export default function PersonalDataPage() {
   const { theme } = useTheme();
@@ -14,6 +26,13 @@ export default function PersonalDataPage() {
   const isLargeScreen = width > 768;
 
   const [showDatePicker, setShowDatePicker] = useState(false);
+
+  // Colori extra per ESLint
+  const colors = {
+    red: "red",
+    transparent: "transparent",
+    overlay: "rgba(0, 0, 0, 0.5)",
+  };
 
   const {
     primoLogin,
@@ -39,22 +58,22 @@ export default function PersonalDataPage() {
 
   // Funzione per mettere la prima lettera maiuscola
   const capitalize = (str: string) => {
-    if (!str) return '';
+    if (!str) return "";
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
-  
+
   // Funzione per mostrare il DatePicker
   const showDatepicker = () => {
     setShowDatePicker(true);
   };
 
   // Funzione per gestire il cambio di data (per React Native)
-  const onDateChange = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+  const onDateChange = (event: unknown, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
       const year = selectedDate.getFullYear();
-      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const day = String(selectedDate.getDate()).padStart(2, "0");
       const formattedDateForDB = `${year}-${month}-${day}`;
       setDataNascita(formattedDateForDB);
     }
@@ -66,10 +85,10 @@ export default function PersonalDataPage() {
     if (dateValue) {
       setDataNascita(dateValue);
     } else {
-      setDataNascita('');
+      setDataNascita("");
     }
   };
-  
+
   // Gestisce il submit del form sulla versione web per prevenire il ricaricamento della pagina
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -77,192 +96,200 @@ export default function PersonalDataPage() {
   };
 
   const styles = StyleSheet.create({
+    commonInput: {
+      backgroundColor: theme.colors.background,
+      borderColor: theme.colors.cardBorder,
+      borderRadius: 10,
+      borderWidth: 1,
+      fontSize: theme.typography.fontSizes.medium,
+      height: 50,
+      marginBottom: 15,
+      paddingHorizontal: 15,
+    },
     container: {
       backgroundColor: theme.colors.background,
       flex: 1,
       ...(isLargeScreen && {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
       }),
     },
     contentContainer: {
+      alignItems: "center",
+      flexGrow: 1,
       padding: 20,
-      alignItems: 'center',
-      flexGrow: 1, // Fix per la ScrollView su web
     },
-    popupContainer: {
-      backgroundColor: theme.colors.cardBackground,
-      // @ts-ignore
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-      borderRadius: 15,
-      elevation: 8,
-      maxWidth: 400,
-      width: '90%',
+    dateInput: {
+      justifyContent: "center",
+      width: "100%",
     },
-    title: {
-      fontSize: theme.typography.fontSizes.large,
-      fontWeight: 'bold',
-      color: theme.colors.text,
-      marginBottom: 20,
-      textAlign: 'center',
+    datePickerInput: {
+      backgroundColor: colors.transparent,
+      borderWidth: 0,
+      color: dataNascita ? theme.colors.text : theme.colors.textSecondary,
+      fontSize: theme.typography.fontSizes.medium,
+      height: "100%",
+      padding: 0,
+      width: "100%",
     },
-    label: {
-      alignSelf: 'flex-start',
-      marginLeft: 15,
-      marginTop: 10,
-      color: theme.colors.text,
+    datePickerWebInput: {
+      outline: "none",
+    },
+    datePickerWebInputContainer: {
+      justifyContent: "center",
+      width: "100%",
+    },
+    dateText: {
+      color: dataNascita ? theme.colors.text : theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.medium,
     },
-    // Stili comuni per i campi di input
-    commonInput: {
-      height: 50,
-      borderColor: theme.colors.cardBorder,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 15,
+    emailInputInvalid: {
+      borderColor: colors.red,
+    },
+    errorText: {
+      color: colors.red,
+      fontSize: theme.typography.fontSizes.small,
       marginBottom: 15,
-      backgroundColor: theme.colors.background,
-      fontSize: theme.typography.fontSizes.medium,
+      textAlign: "center",
     },
     input: {
-      width: '100%',
       color: theme.colors.text,
+      width: "100%",
     },
-    nonEditableInput: {
-      justifyContent: 'center',
+    label: {
+      alignSelf: "flex-start",
+      color: theme.colors.text,
+      fontSize: theme.typography.fontSizes.medium,
+      marginLeft: 15,
+      marginTop: 10,
+    },
+    largeScreenWrapper: {
+      flex: 1,
+    },
+    modalButton: {
+      backgroundColor: theme.colors.primary,
+      borderRadius: 20,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+    },
+    modalButtonText: {
+      color: theme.colors.headerText,
+      fontSize: theme.typography.fontSizes.medium,
+      fontWeight: "bold",
+    },
+    modalContent: {
+      alignItems: "center",
+      backgroundColor: theme.colors.cardBackground,
+      borderRadius: 10,
+      padding: 20,
+      width: "80%",
+    },
+    modalOverlay: {
+      alignItems: "center",
+      backgroundColor: colors.overlay,
+      flex: 1,
+      justifyContent: "center",
+    },
+    modalText: {
+      color: theme.colors.text,
+      fontSize: theme.typography.fontSizes.large,
+      marginBottom: 20,
+      textAlign: "center",
     },
     nameInput: {
       flex: 1,
       marginRight: 10,
     },
-    surnameInput: {
+    nameLabel: {
+      color: theme.colors.text,
       flex: 1,
+      fontSize: theme.typography.fontSizes.medium,
+      textAlign: "center",
+    },
+    nameSurnameContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      width: "100%",
+    },
+    nameSurnameLabels: {
+      flexDirection: "row",
+      marginBottom: -5,
+      width: "100%",
+    },
+    nonEditableInput: {
+      justifyContent: "center",
     },
     nonEditableTextContent: {
       color: theme.colors.textSecondary,
       fontSize: theme.typography.fontSizes.medium,
     },
-    errorText: {
-      color: 'red',
-      marginBottom: 15,
-      textAlign: 'center',
-      fontSize: theme.typography.fontSizes.small,
+    picker: {
+      color: theme.colors.text,
+    },
+    pickerContainer: {
+      justifyContent: "center",
+      width: "100%",
+    },
+    popupContainer: {
+      backgroundColor: theme.colors.cardBackground,
+      borderRadius: 15,
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+      width: "90%",
     },
     saveButton: {
       backgroundColor: theme.colors.primary,
-      paddingVertical: 15,
-      paddingHorizontal: 40,
       borderRadius: 30,
       marginTop: 20,
       opacity: isLoading || isFetchingData || !isEmailValid(email) ? 0.7 : 1,
+      paddingHorizontal: 40,
+      paddingVertical: 15,
     },
     saveButtonText: {
       color: theme.colors.headerText,
       fontSize: theme.typography.fontSizes.large,
-      fontWeight: 'bold',
-      textAlign: 'center'
+      fontWeight: "bold",
+      textAlign: "center",
     },
-    pickerContainer: {
-      width: '100%',
-      justifyContent: 'center',
-    },
-    picker: {
-      color: theme.colors.text,
-    },
-    dateInput: {
-      width: '100%',
-      justifyContent: 'center',
-    },
-    dateText: {
-      fontSize: theme.typography.fontSizes.medium,
-      color: dataNascita ? theme.colors.text : theme.colors.textSecondary,
-    },
-    datePickerInput: {
-      // Stile specifico per l'input di tipo "date" su web
-      width: '100%',
-      height: '100%',
-      borderWidth: 0,
-      padding: 0,
-      backgroundColor: 'transparent',
-      color: dataNascita ? theme.colors.text : theme.colors.textSecondary,
-      fontSize: theme.typography.fontSizes.medium,
-    },
-    modalOverlay: {
+    surnameInput: {
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    },
-    modalContent: {
-      backgroundColor: theme.colors.cardBackground,
-      padding: 20,
-      borderRadius: 10,
-      alignItems: 'center',
-      width: '80%',
-    },
-    modalText: {
-      fontSize: theme.typography.fontSizes.large,
-      color: theme.colors.text,
-      textAlign: 'center',
-      marginBottom: 20,
-    },
-    modalButton: {
-      backgroundColor: theme.colors.primary,
-      paddingVertical: 10,
-      paddingHorizontal: 20,
-      borderRadius: 20,
-    },
-    modalButtonText: {
-      color: theme.colors.headerText,
-      fontWeight: 'bold',
-      fontSize: theme.typography.fontSizes.medium,
-    },
-    nameSurnameContainer: {
-      flexDirection: 'row',
-      width: '100%',
-      justifyContent: 'space-between',
-    },
-    nameSurnameLabels: {
-      flexDirection: 'row',
-      width: '100%',
-      marginBottom: -5,
-    },
-    nameLabel: {
-      // Aggiunto flex: 1 e textAlign: 'center' per centrare il testo
-      flex: 1,
-      textAlign: 'center',
-      color: theme.colors.text,
-      fontSize: theme.typography.fontSizes.medium,
     },
     surnameLabel: {
-      // Aggiunto flex: 1 e textAlign: 'center' per centrare il testo
-      flex: 1,
-      textAlign: 'center',
       color: theme.colors.text,
+      flex: 1,
       fontSize: theme.typography.fontSizes.medium,
+      textAlign: "center",
+    },
+    title: {
+      color: theme.colors.text,
+      fontSize: theme.typography.fontSizes.large,
+      fontWeight: "bold",
+      marginBottom: 20,
+      textAlign: "center",
     },
   });
 
   // Funzione per formattare la data da AAAA-MM-GG a GG-MM-AAAA
   const formatDateForDisplay = (dateString: string) => {
-    if (!dateString) return '';
-    const [year, month, day] = dateString.split('-');
+    if (!dateString) return "";
+    const [year, month, day] = dateString.split("-");
     return `${day}-${month}-${year}`;
   };
 
   // Ottiene la data odierna nel formato YYYY-MM-DD per l'attributo max dell'input
-  const today = new Date().toISOString().split('T')[0];
-  const minDate = '1900-01-01';
+  const today = new Date().toISOString().split("T")[0];
+  const minDate = "1900-01-01";
 
   // Sulla versione web, avvolgiamo gli input in un form per gestire il submit
-  const FormWrapper = Platform.OS === 'web' ? 'form' : View;
+  const FormWrapper = Platform.OS === "web" ? "form" : View;
 
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: primoLogin ? 'Completa il tuo profilo' : 'Modifica il tuo profilo',
-          headerTitleAlign: 'center',
+          title: primoLogin
+            ? "Completa il tuo profilo"
+            : "Modifica il tuo profilo",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: theme.colors.headerBackground,
           },
@@ -274,19 +301,25 @@ export default function PersonalDataPage() {
           headerTintColor: theme.colors.headerText,
         }}
       />
-      <View style={isLargeScreen ? styles.popupContainer : { flex: 1 }}>
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.contentContainer}>
+      <View
+        style={
+          isLargeScreen ? styles.popupContainer : styles.largeScreenWrapper
+        }
+      >
+        <ScrollView
+          style={styles.largeScreenWrapper}
+          contentContainerStyle={styles.contentContainer}
+        >
           <Text style={styles.title}>
-            {primoLogin ? 'Completa il tuo profilo' : 'Modifica il tuo profilo'}
+            {primoLogin ? "Completa il tuo profilo" : "Modifica il tuo profilo"}
           </Text>
           {error ? <Text style={styles.errorText}>{error}</Text> : null}
-          
+
           {isFetchingData ? (
             <ActivityIndicator size="large" color={theme.colors.primary} />
           ) : (
             <FormWrapper
-              // @ts-ignore
-              onSubmit={Platform.OS === 'web' ? handleFormSubmit : undefined}
+              onSubmit={Platform.OS === "web" ? handleFormSubmit : undefined}
             >
               {/* Nome e Cognome non editabili su due colonne */}
               <View style={styles.nameSurnameLabels}>
@@ -294,22 +327,38 @@ export default function PersonalDataPage() {
                 <Text style={styles.surnameLabel}>Cognome</Text>
               </View>
               <View style={styles.nameSurnameContainer}>
-                <View style={[styles.commonInput, styles.nonEditableInput, styles.nameInput]}>
+                <View
+                  style={[
+                    styles.commonInput,
+                    styles.nonEditableInput,
+                    styles.nameInput,
+                  ]}
+                >
                   <Text style={styles.nonEditableTextContent}>
                     {capitalize(nome)}
                   </Text>
                 </View>
-                <View style={[styles.commonInput, styles.nonEditableInput, styles.surnameInput]}>
+                <View
+                  style={[
+                    styles.commonInput,
+                    styles.nonEditableInput,
+                    styles.surnameInput,
+                  ]}
+                >
                   <Text style={styles.nonEditableTextContent}>
                     {capitalize(cognome)}
                   </Text>
                 </View>
               </View>
-              
+
               {/* Email editabile con validazione */}
               <Text style={styles.label}>Email</Text>
               <TextInput
-                style={[styles.commonInput, styles.input, !isEmailValid(email) && { borderColor: 'red' }]}
+                style={[
+                  styles.commonInput,
+                  styles.input,
+                  !isEmailValid(email) && styles.emailInputInvalid,
+                ]}
                 placeholder="Email"
                 placeholderTextColor={theme.colors.textSecondary}
                 value={email}
@@ -317,7 +366,9 @@ export default function PersonalDataPage() {
                 keyboardType="email-address"
               />
               {!isEmailValid(email) && (
-                <Text style={styles.errorText}>Inserisci un&apos;email valida.</Text>
+                <Text style={styles.errorText}>
+                  Inserisci un&apos;email valida.
+                </Text>
               )}
 
               {/* Comune di residenza */}
@@ -328,32 +379,48 @@ export default function PersonalDataPage() {
                 placeholderTextColor={theme.colors.textSecondary}
                 value={comuneResidenza}
                 onChangeText={(text) => {
-                  console.log('Comune di residenza onChangeText called with:', text);
+                  console.log(
+                    "Comune di residenza onChangeText called with:",
+                    text,
+                  );
                   setComuneResidenza(text);
                 }}
               />
-              
+
               {/* Data di nascita (DatePicker) */}
               <Text style={styles.label}>Data di nascita</Text>
-              {Platform.OS === 'web' ? (
-                <View style={[styles.commonInput, { width: '100%', justifyContent: 'center' }]}>
+              {Platform.OS === "web" ? (
+                <View
+                  style={[
+                    styles.commonInput,
+                    styles.datePickerWebInputContainer,
+                  ]}
+                >
                   <input
                     type="date"
                     value={dataNascita}
                     onChange={onDateChangeWeb}
                     min={minDate}
                     max={today}
-                    style={{ ...styles.datePickerInput as object, outline: 'none' }}
+                    style={{
+                      ...styles.datePickerInput,
+                      ...styles.datePickerWebInput,
+                    }}
                   />
                 </View>
               ) : (
-                <Pressable onPress={showDatepicker} style={[styles.commonInput, styles.dateInput]}>
+                <Pressable
+                  onPress={showDatepicker}
+                  style={[styles.commonInput, styles.dateInput]}
+                >
                   <Text style={styles.dateText}>
-                    {dataNascita ? formatDateForDisplay(dataNascita) : "Seleziona la data di nascita"}
+                    {dataNascita
+                      ? formatDateForDisplay(dataNascita)
+                      : "Seleziona la data di nascita"}
                   </Text>
                 </Pressable>
               )}
-              
+
               {showDatePicker && (
                 <DateTimePicker
                   value={dataNascita ? new Date(dataNascita) : new Date()}
@@ -368,30 +435,38 @@ export default function PersonalDataPage() {
               <View style={[styles.commonInput, styles.pickerContainer]}>
                 <Picker
                   selectedValue={parrocchiaRiferimentoId}
-                  onValueChange={(itemValue) => setParrocchiaRiferimentoId(itemValue)}
+                  onValueChange={(itemValue) =>
+                    setParrocchiaRiferimentoId(itemValue)
+                  }
                   style={styles.picker}
                 >
                   <Picker.Item label="Seleziona una parrocchia..." value="" />
                   {parrocchie.map((parrocchia) => (
-                    <Picker.Item key={parrocchia.id} label={parrocchia.name} value={parrocchia.id} />
+                    <Picker.Item
+                      key={parrocchia.id}
+                      label={parrocchia.name}
+                      value={parrocchia.id}
+                    />
                   ))}
                 </Picker>
               </View>
-              
+
               <Pressable
                 style={styles.saveButton}
                 onPress={handleSave}
-                // @ts-ignore
-                type={Platform.OS === 'web' ? 'submit' : 'button'}
+                // @ts-expect-error type is a web-only prop
+                type={Platform.OS === "web" ? "submit" : "button"}
                 disabled={isLoading || isFetchingData || !isEmailValid(email)}
               >
-                <Text style={styles.saveButtonText}>{isLoading ? 'Salvataggio...' : 'Salva'}</Text>
+                <Text style={styles.saveButtonText}>
+                  {isLoading ? "Salvataggio..." : "Salva"}
+                </Text>
               </Pressable>
             </FormWrapper>
           )}
         </ScrollView>
       </View>
-      
+
       {/* Modal di conferma */}
       <Modal
         animationType="fade"
@@ -402,10 +477,7 @@ export default function PersonalDataPage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>Dati salvati con successo!</Text>
-            <Pressable
-              style={styles.modalButton}
-              onPress={handleModalClose}
-            >
+            <Pressable style={styles.modalButton} onPress={handleModalClose}>
               <Text style={styles.modalButtonText}>OK</Text>
             </Pressable>
           </View>
@@ -413,9 +485,7 @@ export default function PersonalDataPage() {
       </Modal>
     </View>
   );
-};
-
-
+}
 
 
 /*

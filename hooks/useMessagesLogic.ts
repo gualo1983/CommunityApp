@@ -1,9 +1,13 @@
 // File: hooks/useMessagesLogic.ts
 
-import { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { useEffect, useRef, useState } from 'react';
-import { useSupabase } from '../contexts/SupabaseProvider';
-import { Conversation, Message } from '../interfaces/message';
+import {
+  RealtimeChannel,
+  RealtimePostgresChangesPayload,
+} from "@supabase/supabase-js";
+import { useEffect, useRef, useState } from "react";
+
+import { useSupabase } from "../contexts/SupabaseProvider";
+import { Conversation, Message } from "../interfaces/message";
 
 // Definizione di un'interfaccia per la riga del database Supabase
 interface SupabaseMessageRow {
@@ -26,16 +30,25 @@ interface UserProfileRow {
 }
 
 // Funzione per raggruppare i messaggi in conversazioni
-const groupMessages = (messages: SupabaseMessageRow[], userId: string | null, usersMap: Map<string, string>): Conversation[] => {
+const groupMessages = (
+  messages: SupabaseMessageRow[],
+  userId: string | null,
+  usersMap: Map<string, string>,
+): Conversation[] => {
   const conversationsMap = new Map<string, Conversation>();
 
-  messages.forEach(msg => {
+  messages.forEach((msg) => {
     // Creazione di una chiave unica per la conversazione basata sui partecipanti e sul titolo della richiesta
-    const participants = [msg.proprietario_id, msg.destinatario_id].sort().join('-');
+    const participants = [msg.proprietario_id, msg.destinatario_id]
+      .sort()
+      .join("-");
     const conversationId = `${participants}-${msg.titolo}`;
 
     // Identifica l'ID dell'altro partecipante
-    const otherParticipantId = msg.proprietario_id === userId ? msg.destinatario_id : msg.proprietario_id;
+    const otherParticipantId =
+      msg.proprietario_id === userId
+        ? msg.destinatario_id
+        : msg.proprietario_id;
 
     if (!conversationsMap.has(conversationId)) {
       conversationsMap.set(conversationId, {
@@ -44,7 +57,8 @@ const groupMessages = (messages: SupabaseMessageRow[], userId: string | null, us
         messages: [],
         isUnread: false, // Verrà aggiornato in un secondo momento
         // Aggiungi il nome dell'altro partecipante alla conversazione
-        otherParticipantName: usersMap.get(otherParticipantId) || otherParticipantId,
+        otherParticipantName:
+          usersMap.get(otherParticipantId) || otherParticipantId,
       });
     }
 
@@ -66,12 +80,12 @@ const groupMessages = (messages: SupabaseMessageRow[], userId: string | null, us
 
     // Aggiorna lo stato di non letto per la conversazione
     if (!message.isRead && !message.isMe) {
-        conversation.isUnread = true;
+      conversation.isUnread = true;
     }
   });
 
   // Ordina i messaggi all'interno di ogni conversazione per timestamp
-  conversationsMap.forEach(conv => {
+  conversationsMap.forEach((conv) => {
     conv.messages.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   });
 
@@ -82,9 +96,10 @@ export const useMessagesLogic = () => {
   const { supabase } = useSupabase();
   const [userId, setUserId] = useState<string | null>(null);
   const [usersMap, setUsersMap] = useState<Map<string, string>>(new Map());
-  
+
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -95,7 +110,7 @@ export const useMessagesLogic = () => {
   // Manteniamo i ref sincronizzati con gli stati
   useEffect(() => {
     conversationsRef.current = conversations;
-    console.log('useEffect: Lo stato delle conversazioni è stato aggiornato.');
+    console.log("useEffect: Lo stato delle conversazioni è stato aggiornato.");
   }, [conversations]);
 
   useEffect(() => {
@@ -104,8 +119,10 @@ export const useMessagesLogic = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUserId(session?.user?.id || null);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
     };
 
     checkUser();
@@ -118,56 +135,74 @@ export const useMessagesLogic = () => {
     }
 
     let subscription: RealtimeChannel | null = null;
-    
+
     // Funzione per caricare i dati iniziali (messaggi e profili utente)
     const fetchInitialData = async () => {
-      console.log('fetchInitialData: Avvio il caricamento dei dati iniziali...');
+      console.log(
+        "fetchInitialData: Avvio il caricamento dei dati iniziali...",
+      );
       setIsLoading(true);
-      
+
       const { data: messagesData } = await supabase
-        .from('messaggi')
-        .select('*')
+        .from("messaggi")
+        .select("*")
         .or(`proprietario_id.eq.${userId},destinatario_id.eq.${userId}`);
-      
-      const { data: profilesData } = await supabase.from('utenti').select('id, nome, cognome').returns<UserProfileRow[]>();
-      
+
+      const { data: profilesData } = await supabase
+        .from("utenti")
+        .select("id, nome, cognome")
+        .returns<UserProfileRow[]>();
+
       // Creazione di una mappa utente locale prima di aggiornare lo stato
-      let localUsersMap = new Map<string, string>();
+      const localUsersMap = new Map<string, string>();
       if (profilesData) {
-        profilesData.forEach(profile => {
+        profilesData.forEach((profile) => {
           localUsersMap.set(profile.id, `${profile.nome} ${profile.cognome}`);
         });
       }
-      
+
       if (messagesData) {
-          setConversations(groupMessages(messagesData, userId, localUsersMap));
+        setConversations(groupMessages(messagesData, userId, localUsersMap));
       }
-      
+
       setUsersMap(localUsersMap);
       setIsLoading(false);
-      console.log('fetchInitialData: Caricamento dati iniziali completato.');
+      console.log("fetchInitialData: Caricamento dati iniziali completato.");
     };
-    
+
     const setupRealtime = () => {
-        console.log('setupRealtime: Iscrizione al canale "public:messaggi"...');
-        subscription = supabase
-          .channel('public:messaggi')
-          // Listener per nuovi messaggi (INSERT)
-          .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messaggi' }, (payload: RealtimePostgresChangesPayload<SupabaseMessageRow>) => {
+      console.log('setupRealtime: Iscrizione al canale "public:messaggi"...');
+      subscription = supabase
+        .channel("public:messaggi")
+        // Listener per nuovi messaggi (INSERT)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "messaggi" },
+          (payload: RealtimePostgresChangesPayload<SupabaseMessageRow>) => {
             const newMsg = payload.new as SupabaseMessageRow;
-            console.log('RealtimeDB: Messaggio INSERT ricevuto.', newMsg);
+            console.log("RealtimeDB: Messaggio INSERT ricevuto.", newMsg);
             // Aggiungiamo il nuovo messaggio solo se riguarda l'utente corrente
-            if (newMsg.proprietario_id === userId || newMsg.destinatario_id === userId) {
-              setConversations(prevConversations => {
-                const updatedConversations = prevConversations.map(conv => {
-                  const participants = [newMsg.proprietario_id, newMsg.destinatario_id].sort().join('-');
+            if (
+              newMsg.proprietario_id === userId ||
+              newMsg.destinatario_id === userId
+            ) {
+              setConversations((prevConversations) => {
+                const updatedConversations = prevConversations.map((conv) => {
+                  const participants = [
+                    newMsg.proprietario_id,
+                    newMsg.destinatario_id,
+                  ]
+                    .sort()
+                    .join("-");
                   const conversationId = `${participants}-${newMsg.titolo}`;
-                  
+
                   if (conv.id === conversationId) {
                     const newMessage: Message = {
                       id: newMsg.id,
                       senderId: newMsg.proprietario_id,
-                      senderName: usersMapRef.current.get(newMsg.proprietario_id) || newMsg.proprietario_id,
+                      senderName:
+                        usersMapRef.current.get(newMsg.proprietario_id) ||
+                        newMsg.proprietario_id,
                       content: newMsg.corpo.dettagli,
                       timestamp: new Date(newMsg.data),
                       isRead: newMsg.stato_lettura,
@@ -181,45 +216,65 @@ export const useMessagesLogic = () => {
                   }
                   return conv;
                 });
-  
+
                 // Se è una conversazione totalmente nuova, la creiamo e la aggiungiamo.
-                const participants = [newMsg.proprietario_id, newMsg.destinatario_id].sort().join('-');
+                const participants = [
+                  newMsg.proprietario_id,
+                  newMsg.destinatario_id,
+                ]
+                  .sort()
+                  .join("-");
                 const conversationId = `${participants}-${newMsg.titolo}`;
-                const isNewConversation = !prevConversations.some(conv => conv.id === conversationId);
-  
+                const isNewConversation = !prevConversations.some(
+                  (conv) => conv.id === conversationId,
+                );
+
                 if (isNewConversation) {
-                  const otherParticipantId = newMsg.proprietario_id === userId ? newMsg.destinatario_id : newMsg.proprietario_id;
+                  const otherParticipantId =
+                    newMsg.proprietario_id === userId
+                      ? newMsg.destinatario_id
+                      : newMsg.proprietario_id;
                   const newConversation: Conversation = {
                     id: conversationId,
                     requestTitle: newMsg.titolo,
-                    messages: [{
-                      id: newMsg.id,
-                      senderId: newMsg.proprietario_id,
-                      senderName: usersMapRef.current.get(newMsg.proprietario_id) || newMsg.proprietario_id,
-                      content: newMsg.corpo.dettagli,
-                      timestamp: new Date(newMsg.data),
-                      isRead: newMsg.stato_lettura,
-                      isMe: newMsg.proprietario_id === userId,
-                    }],
+                    messages: [
+                      {
+                        id: newMsg.id,
+                        senderId: newMsg.proprietario_id,
+                        senderName:
+                          usersMapRef.current.get(newMsg.proprietario_id) ||
+                          newMsg.proprietario_id,
+                        content: newMsg.corpo.dettagli,
+                        timestamp: new Date(newMsg.data),
+                        isRead: newMsg.stato_lettura,
+                        isMe: newMsg.proprietario_id === userId,
+                      },
+                    ],
                     isUnread: newMsg.proprietario_id !== userId,
-                    otherParticipantName: usersMapRef.current.get(otherParticipantId) || otherParticipantId,
+                    otherParticipantName:
+                      usersMapRef.current.get(otherParticipantId) ||
+                      otherParticipantId,
                   };
                   return [...prevConversations, newConversation];
                 }
-  
+
                 return [...updatedConversations]; // Forza il re-rendering
               });
             }
-          })
-          // Listener per le modifiche (UPDATE), in particolare lo stato di lettura
-          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messaggi' }, (payload: RealtimePostgresChangesPayload<SupabaseMessageRow>) => {
+          },
+        )
+        // Listener per le modifiche (UPDATE), in particolare lo stato di lettura
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "messaggi" },
+          (payload: RealtimePostgresChangesPayload<SupabaseMessageRow>) => {
             const updatedMsg = payload.new as SupabaseMessageRow;
-            console.log('RealtimeDB: Messaggio UPDATE ricevuto.', updatedMsg);
+            console.log("RealtimeDB: Messaggio UPDATE ricevuto.", updatedMsg);
 
             // Aggiorniamo solo lo stato di lettura del messaggio
-            setConversations(prevConversations => {
-              const updatedConversations = prevConversations.map(conv => {
-                const updatedMessages = conv.messages.map(msg => {
+            setConversations((prevConversations) => {
+              const updatedConversations = prevConversations.map((conv) => {
+                const updatedMessages = conv.messages.map((msg) => {
                   if (msg.id === updatedMsg.id) {
                     return { ...msg, isRead: updatedMsg.stato_lettura };
                   }
@@ -227,30 +282,43 @@ export const useMessagesLogic = () => {
                 });
 
                 // Controlla se ci sono ancora messaggi non letti nella conversazione per aggiornare il pallino
-                const hasUnread = updatedMessages.some(msg => !msg.isRead && msg.senderId !== userId);
-                
-                return { ...conv, messages: updatedMessages, isUnread: hasUnread };
+                const hasUnread = updatedMessages.some(
+                  (msg) => !msg.isRead && msg.senderId !== userId,
+                );
+
+                return {
+                  ...conv,
+                  messages: updatedMessages,
+                  isUnread: hasUnread,
+                };
               });
               return [...updatedConversations]; // Forza il re-rendering
             });
             // Aggiorna anche la conversazione selezionata se è aperta
-            setSelectedConversation(prev => {
-                if (prev) {
-                    const updatedMessages = prev.messages.map(msg => {
-                        if (msg.id === updatedMsg.id) {
-                          return { ...msg, isRead: updatedMsg.stato_lettura };
-                        }
-                        return msg;
-                    });
-                    const hasUnread = updatedMessages.some(msg => !msg.isRead && msg.senderId !== userId);
-                    return { ...prev, messages: updatedMessages, isUnread: hasUnread };
-                }
-                return prev;
+            setSelectedConversation((prev) => {
+              if (prev) {
+                const updatedMessages = prev.messages.map((msg) => {
+                  if (msg.id === updatedMsg.id) {
+                    return { ...msg, isRead: updatedMsg.stato_lettura };
+                  }
+                  return msg;
+                });
+                const hasUnread = updatedMessages.some(
+                  (msg) => !msg.isRead && msg.senderId !== userId,
+                );
+                return {
+                  ...prev,
+                  messages: updatedMessages,
+                  isUnread: hasUnread,
+                };
+              }
+              return prev;
             });
-          })
-          .subscribe();
+          },
+        )
+        .subscribe();
     };
-    
+
     fetchInitialData();
     setupRealtime();
 
@@ -261,31 +329,46 @@ export const useMessagesLogic = () => {
     };
   }, [supabase, userId]);
 
-  const openConversation = (conversation: Conversation) => {
-    console.log('openConversation: Apertura conversazione.', conversation);
+  const openConversation = async (conversation: Conversation) => {
+    console.log("openConversation: Apertura conversazione.", conversation);
     // Aggiorna lo stato di "letto" nel database quando si apre la conversazione
     const unreadMessageIds = conversation.messages
-      .filter(msg => !msg.isRead && !msg.isMe)
-      .map(msg => msg.id);
+      .filter((msg) => !msg.isRead && !msg.isMe)
+      .map((msg) => msg.id);
 
     if (unreadMessageIds.length > 0) {
       // Aggiorna lo stato locale immediatamente per rimuovere il pallino
-      setConversations(prevConversations => {
-          const updated = prevConversations.map(conv => 
-              conv.id === conversation.id ? { ...conv, isUnread: false } : conv
-          );
-          return [...updated]; // Forza il re-rendering
+      setConversations((prevConversations) => {
+        const updated = prevConversations.map((conv) =>
+          conv.id === conversation.id ? { ...conv, isUnread: false } : conv,
+        );
+        return [...updated]; // Forza il re-rendering
       });
 
-      console.log('openConversation: Aggiorno lo stato di lettura nel DB per i messaggi:', unreadMessageIds);
-      supabase
-        .from('messaggi')
-        .update({ stato_lettura: true })
-        .in('id', unreadMessageIds)
-        .then(({ error }) => {
-          if (error) console.error('Errore nell\'aggiornamento dello stato di lettura:', error);
-          else console.log('openConversation: Stato di lettura aggiornato con successo nel DB.');
-        });
+      // Usa async/await per una gestione più pulita degli errori
+      try {
+        console.log(
+          "openConversation: Aggiorno lo stato di lettura nel DB per i messaggi:",
+          unreadMessageIds,
+        );
+        const { error } = await supabase
+          .from("messaggi")
+          .update({ stato_lettura: true })
+          .in("id", unreadMessageIds);
+
+        if (error) {
+          console.error(
+            "Errore nell'aggiornamento dello stato di lettura:",
+            error,
+          );
+        } else {
+          console.log(
+            "openConversation: Stato di lettura aggiornato con successo nel DB.",
+          );
+        }
+      } catch (e: unknown) { // E' buona pratica tipizzare l'errore come 'unknown'
+        console.error("Errore durante l'aggiornamento dello stato di lettura:", e);
+      }
     }
 
     setSelectedConversation(conversation);
@@ -299,7 +382,9 @@ export const useMessagesLogic = () => {
 
   const handleReply = async (messageContent: string) => {
     if (selectedConversation && userId) {
-      const recipientId = selectedConversation.messages.find(msg => !msg.isMe)?.senderId;
+      const recipientId = selectedConversation.messages.find(
+        (msg) => !msg.isMe,
+      )?.senderId;
       if (!recipientId) return;
 
       const newDbMessage = {
@@ -310,36 +395,39 @@ export const useMessagesLogic = () => {
         stato_lettura: false,
         data: new Date().toISOString(),
       };
-      
-      console.log('handleReply: Avvio l\'invio del messaggio...');
+
+      console.log("handleReply: Avvio l'invio del messaggio...");
       try {
-        const { data, error } = await supabase.from('messaggi').insert([newDbMessage]).select();
+        const { data, error } = await supabase
+          .from("messaggi")
+          .insert([newDbMessage])
+          .select();
         if (error) {
-          console.error('Errore nell\'invio del messaggio:', error);
+          console.error("Errore nell'invio del messaggio:", error);
         } else {
-          console.log('handleReply: Messaggio inviato con successo:', data);
-          
-          setSelectedConversation(prev => {
+          console.log("handleReply: Messaggio inviato con successo:", data);
+
+          setSelectedConversation((prev) => {
             if (prev) {
-                const newMessage: Message = {
-                    id: (data && data.length > 0) ? data[0].id : 'temp-id',
-                    senderId: userId,
-                    senderName: usersMap.get(userId) || userId,
-                    content: messageContent,
-                    timestamp: new Date(),
-                    isRead: false,
-                    isMe: true,
-                };
-                return {
-                    ...prev,
-                    messages: [...prev.messages, newMessage]
-                };
+              const newMessage: Message = {
+                id: data && data.length > 0 ? data[0].id : "temp-id",
+                senderId: userId,
+                senderName: usersMap.get(userId) || userId,
+                content: messageContent,
+                timestamp: new Date(),
+                isRead: false,
+                isMe: true,
+              };
+              return {
+                ...prev,
+                messages: [...prev.messages, newMessage],
+              };
             }
             return prev;
           });
         }
       } catch (e) {
-        console.error('Errore durante l\'inserimento del messaggio:', e);
+        console.error("Errore durante l'inserimento del messaggio:", e);
       }
     }
   };
@@ -363,10 +451,7 @@ export const useMessagesLogic = () => {
 };
 
 
-
-
-
-//collegamento al db e mesaggi in real time o quasi 
+//collegamento al db e mesaggi in real time o quasi
 /*
 // File: hooks/useMessagesLogic.ts
 

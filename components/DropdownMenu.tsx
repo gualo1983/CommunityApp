@@ -1,8 +1,9 @@
-import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useAuth } from '../contexts/AuthProvider';
-import { useTheme } from '../contexts/theme';
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
+import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useTheme } from "../contexts/theme";
 
 // Aggiungiamo un'interfaccia per definire la struttura dell'oggetto utente
 interface AuthUser {
@@ -23,19 +24,27 @@ const DropdownMenu = () => {
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // Ora destrutturiamo sia l'oggetto 'user' che l'oggetto 'profile'
-  const { user, profile, signOut } = useAuth() as { user: AuthUser | null; profile: UserProfile | null; signOut: () => void };
+  const { user, profile, signOut } = useAuth() as {
+    user: AuthUser | null;
+    profile: UserProfile | null;
+    signOut: () => void;
+  };
   const { theme } = useTheme();
 
   // Determina il nome utente da visualizzare: prima l'utente autenticato, poi il mock user
   // Utilizziamo le proprietà corrette 'nome' e 'cognome' dall'oggetto 'profile'
-  const userName = profile && profile.nome ? `${profile.nome} ${profile.cognome || ''}`.trim() : 'Ospite';
-  const firstLetter = profile && profile.nome ? profile.nome.charAt(0).toUpperCase() : 'O';
+  const userName =
+    profile && profile.nome
+      ? `${profile.nome} ${profile.cognome || ""}`.trim()
+      : "Ospite";
+  const firstLetter =
+    profile && profile.nome ? profile.nome.charAt(0).toUpperCase() : "O";
 
   // Funzione per generare un colore casuale per lo sfondo dell'icona.
   // Questo è usato come fallback se non è disponibile un'immagine profilo.
   const getRandomColor = () => {
-    const letters = '0123456789ABCDEF';
-    let color = '#';
+    const letters = "0123456789ABCDEF";
+    let color = "#";
     for (let i = 0; i < 6; i++) {
       color += letters[Math.floor(Math.random() * 16)];
     }
@@ -69,18 +78,15 @@ const DropdownMenu = () => {
 
   const styles = StyleSheet.create({
     container: {
-      position: 'relative',
+      position: "relative",
       zIndex: 10,
     },
     dropdown: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 10,
-      shadowColor: '#000', // Sostituisce box-shadow per React Native
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.25)",
       elevation: 5,
-      position: 'absolute',
+      position: "absolute",
       right: 10,
       top: 50,
       width: 200,
@@ -97,7 +103,7 @@ const DropdownMenu = () => {
     menuHeaderText: {
       color: theme.colors.text,
       fontSize: 18,
-      fontWeight: 'bold',
+      fontWeight: "bold",
     },
     menuItem: {
       borderBottomColor: theme.colors.cardBorder,
@@ -109,42 +115,37 @@ const DropdownMenu = () => {
       fontSize: 16,
     },
     profileIcon: {
-      alignItems: 'center',
+      alignItems: "center",
       borderRadius: 20,
       height: 40,
-      justifyContent: 'center',
+      justifyContent: "center",
       width: 40,
     },
     profileIconText: {
       color: theme.colors.headerText,
       fontSize: 18,
-      fontWeight: 'bold',
+      fontWeight: "bold",
     },
   });
 
   return (
     <View style={styles.container}>
-      <Pressable
-        onPress={toggleMenu}
-        style={styles.menuButton}
-      >
+      <Pressable onPress={toggleMenu} style={styles.menuButton}>
         {renderProfileIcon()}
       </Pressable>
 
       {isMenuOpen && (
         <View style={styles.dropdown}>
           <View style={styles.menuHeader}>
-            <Text style={styles.menuHeaderText}>
-              {userName}
-            </Text>
+            <Text style={styles.menuHeaderText}>{userName}</Text>
           </View>
-          
+
           {user ? (
             <>
               <Pressable
                 style={styles.menuItem}
                 onPress={() => {
-                  router.push('/msg');
+                  router.push("/msg");
                   toggleMenu();
                 }}
               >
@@ -155,7 +156,7 @@ const DropdownMenu = () => {
             <Pressable
               style={styles.menuItem}
               onPress={() => {
-                router.push('/login');
+                router.push("/login");
                 toggleMenu();
               }}
             >
@@ -167,7 +168,7 @@ const DropdownMenu = () => {
           <Pressable
             style={styles.menuItem}
             onPress={() => {
-              router.push('/settings');
+              router.push("/settings");
               toggleMenu();
             }}
           >
@@ -180,14 +181,13 @@ const DropdownMenu = () => {
               style={styles.menuItem}
               onPress={() => {
                 signOut();
-                router.push('/login');
+                router.push("/login");
                 toggleMenu();
               }}
             >
               <Text style={styles.menuItemText}>Logout</Text>
             </Pressable>
           )}
-
         </View>
       )}
     </View>
@@ -195,8 +195,6 @@ const DropdownMenu = () => {
 };
 
 export default DropdownMenu;
-
-
 
 /*
 import { useRouter } from 'expo-router';

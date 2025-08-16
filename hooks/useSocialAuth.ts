@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState } from "react";
+
 //import { useRouter } from 'expo-router';
-import { useSupabase } from '../contexts/SupabaseProvider'; // Assumendo che esista un SupabaseProvider
+import { useSupabase } from "../contexts/SupabaseProvider"; // Assumendo che esista un SupabaseProvider
 
 /**
  * Hook personalizzato per gestire la logica di autenticazione (login e registrazione)
@@ -18,7 +19,9 @@ export const useSocialAuth = () => {
    * Questo metodo gestisce sia il login che la registrazione di nuovi utenti.
    * @param provider Il nome del provider (es. 'google', 'facebook', 'apple').
    */
-  const handleSocialAuth = async (provider: 'google' | 'facebook' | 'apple') => {
+  const handleSocialAuth = async (
+    provider: "google" | "facebook" | "apple",
+  ) => {
     setIsLoading(true);
     setError(null);
 
@@ -32,22 +35,23 @@ export const useSocialAuth = () => {
       if (signInError) {
         throw signInError;
       }
-      
+
       // La chiamata a signInWithOAuth reindirizzerà l'utente al provider.
       // Dopo l'autenticazione, l'utente tornerà alla tua app.
       // Non è necessario gestire la navigazione qui.
-
     } catch (err) {
       console.error(`Errore durante l'autenticazione con ${provider}:`, err);
-      setError(`Si è verificato un errore durante l'autenticazione con ${provider}.`);
+      setError(
+        `Si è verificato un errore durante l'autenticazione con ${provider}.`,
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleAuth = () => handleSocialAuth('google');
-  const handleFacebookAuth = () => handleSocialAuth('facebook');
-  const handleAppleAuth = () => handleSocialAuth('apple');
+  const handleGoogleAuth = () => handleSocialAuth("google");
+  const handleFacebookAuth = () => handleSocialAuth("facebook");
+  const handleAppleAuth = () => handleSocialAuth("apple");
 
   return {
     isLoading,

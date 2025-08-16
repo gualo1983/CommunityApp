@@ -1,11 +1,19 @@
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { ColorResult } from 'react-color';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import ColorPickerModal from '../components/ColorPickerModal';
-import ThemePreview from '../components/ThemePreview';
-import { useTheme } from '../contexts/theme';
-import { useCustomThemeLogic } from '../hooks/useCustomThemeLogic';
+import { Stack, useRouter } from "expo-router";
+import React, { useState } from "react";
+import { ColorResult } from "react-color";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from "react-native";
+
+import ColorPickerModal from "../components/ColorPickerModal";
+import ThemePreview from "../components/ThemePreview";
+import { useTheme } from "../contexts/theme";
+import { useCustomThemeLogic } from "../hooks/useCustomThemeLogic";
 
 export default function CustomThemeSettingsPage() {
   const { theme } = useTheme();
@@ -25,23 +33,25 @@ export default function CustomThemeSettingsPage() {
     handleSave,
   } = useCustomThemeLogic();
 
-  const [activePicker, setActivePicker] = useState<'primary' | 'background' | 'text' | null>(null);
+  const [activePicker, setActivePicker] = useState<
+    "primary" | "background" | "text" | null
+  >(null);
 
   // ✨ Stili corretti: ripristino della dichiarazione Stylesheet.create
   const styles = StyleSheet.create({
     colorSelectorRow: {
-      alignItems: 'center',
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
+      alignItems: "center",
+      flexDirection: "row",
+      justifyContent: "flex-start",
       marginBottom: 5,
     },
     colorSwatchButton: {
-      alignItems: 'center',
+      alignItems: "center",
       borderColor: theme.colors.cardBorder,
       borderRadius: 15,
       borderWidth: 2,
       height: 30,
-      justifyContent: 'center',
+      justifyContent: "center",
       width: 30,
     },
     colorSwatchLabel: {
@@ -57,8 +67,8 @@ export default function CustomThemeSettingsPage() {
       backgroundColor: theme.colors.background,
       flex: 1,
       ...(isLargeScreen && {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
       }),
     },
     contentContainer: {
@@ -69,17 +79,18 @@ export default function CustomThemeSettingsPage() {
     },
     popupContainer: {
       backgroundColor: theme.colors.cardBackground,
-      // @ts-ignore
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
       borderRadius: 15,
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       elevation: 8,
       maxWidth: 400,
-      width: '90%',
+      width: "90%",
     },
     saveButton: {
-      alignItems: 'center',
-      alignSelf: 'center', 
-      backgroundColor: isSaveEnabled ? theme.colors.primary : theme.colors.textSecondary,
+      alignItems: "center",
+      alignSelf: "center",
+      backgroundColor: isSaveEnabled
+        ? theme.colors.primary
+        : theme.colors.textSecondary,
       borderRadius: 10,
       marginTop: 30,
       opacity: isSaveEnabled ? 1 : 0.5,
@@ -89,71 +100,64 @@ export default function CustomThemeSettingsPage() {
     saveButtonText: {
       color: theme.colors.headerText,
       fontSize: theme.typography.fontSizes.medium,
-      fontWeight: 'bold',
-      textAlign: 'center',
+      fontWeight: "bold",
+      textAlign: "center",
     },
     section: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 8,
-      // @ts-ignore
-      boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.1)',
+      boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
       elevation: 2,
       marginBottom: 15,
       padding: 10,
     },
-    sectionTitle: {
-      color: theme.colors.text,
-      fontSize: theme.typography.fontSizes.medium,
-      fontWeight: theme.typography.fontWeights.bold,
-      marginBottom: 10,
-    },
     validationMessage: {
-      color: 'red',
+      color: theme.colors.error,
       fontSize: theme.typography.fontSizes.small,
       fontWeight: theme.typography.fontWeights.bold,
       marginBottom: 10,
       marginTop: 10,
-      textAlign: 'center',
+      textAlign: "center",
     },
   });
 
   const getPickerState = () => {
     switch (activePicker) {
-      case 'background':
+      case "background":
         // ✨ Correzione della tipizzazione di onColorChange
         return {
           color: selectedBackgroundColor,
           onChange: (color: string | ColorResult) => {
-            if (typeof color === 'string') {
-                setSelectedBackgroundColor(color);
+            if (typeof color === "string") {
+              setSelectedBackgroundColor(color);
             } else if (color.hex) {
-                setSelectedBackgroundColor(color.hex);
+              setSelectedBackgroundColor(color.hex);
             }
-          }
+          },
         };
-      case 'primary':
+      case "primary":
         // ✨ Correzione della tipizzazione di onColorChange
         return {
           color: selectedPrimaryColor,
           onChange: (color: string | ColorResult) => {
-            if (typeof color === 'string') {
-                setSelectedPrimaryColor(color);
+            if (typeof color === "string") {
+              setSelectedPrimaryColor(color);
             } else if (color.hex) {
-                setSelectedPrimaryColor(color.hex);
+              setSelectedPrimaryColor(color.hex);
             }
-          }
+          },
         };
-      case 'text':
+      case "text":
         // ✨ Correzione della tipizzazione di onColorChange
         return {
           color: selectedTextColor,
           onChange: (color: string | ColorResult) => {
-            if (typeof color === 'string') {
-                setSelectedTextColor(color);
+            if (typeof color === "string") {
+              setSelectedTextColor(color);
             } else if (color.hex) {
-                setSelectedTextColor(color.hex);
+              setSelectedTextColor(color.hex);
             }
-          }
+          },
         };
       default:
         return null;
@@ -165,13 +169,13 @@ export default function CustomThemeSettingsPage() {
   const handleCloseModal = () => {
     setActivePicker(null);
   };
-  
+
   return (
     <View style={styles.container}>
       <Stack.Screen
         options={{
-          title: 'Personalizza Tema',
-          headerTitleAlign: 'center',
+          title: "Personalizza Tema",
+          headerTitleAlign: "center",
           headerStyle: {
             backgroundColor: theme.colors.headerBackground,
           },
@@ -183,14 +187,22 @@ export default function CustomThemeSettingsPage() {
           headerTintColor: theme.colors.headerText,
         }}
       />
-      <View style={isLargeScreen ? styles.popupContainer : styles.fullscreenContainer}>
+      <View
+        style={
+          isLargeScreen ? styles.popupContainer : styles.fullscreenContainer
+        }
+      >
         <ScrollView contentContainerStyle={styles.contentContainer}>
           <View style={styles.section}>
             <View style={styles.colorSelectorRow}>
               <Text style={styles.colorSwatchLabel}>Colore di Sfondo</Text>
               <TouchableOpacity
-                style={[styles.colorSwatchButton, { backgroundColor: selectedBackgroundColor }, activePicker === 'background' && styles.colorSwatchSelected]}
-                onPress={() => setActivePicker('background')}
+                style={[
+                  styles.colorSwatchButton,
+                  { backgroundColor: selectedBackgroundColor },
+                  activePicker === "background" && styles.colorSwatchSelected,
+                ]}
+                onPress={() => setActivePicker("background")}
               />
             </View>
           </View>
@@ -198,8 +210,12 @@ export default function CustomThemeSettingsPage() {
             <View style={styles.colorSelectorRow}>
               <Text style={styles.colorSwatchLabel}>Colore Primario</Text>
               <TouchableOpacity
-                style={[styles.colorSwatchButton, { backgroundColor: selectedPrimaryColor }, activePicker === 'primary' && styles.colorSwatchSelected]}
-                onPress={() => setActivePicker('primary')}
+                style={[
+                  styles.colorSwatchButton,
+                  { backgroundColor: selectedPrimaryColor },
+                  activePicker === "primary" && styles.colorSwatchSelected,
+                ]}
+                onPress={() => setActivePicker("primary")}
               />
             </View>
           </View>
@@ -207,8 +223,12 @@ export default function CustomThemeSettingsPage() {
             <View style={styles.colorSelectorRow}>
               <Text style={styles.colorSwatchLabel}>Colore Testo</Text>
               <TouchableOpacity
-                style={[styles.colorSwatchButton, { backgroundColor: selectedTextColor }, activePicker === 'text' && styles.colorSwatchSelected]}
-                onPress={() => setActivePicker('text')}
+                style={[
+                  styles.colorSwatchButton,
+                  { backgroundColor: selectedTextColor },
+                  activePicker === "text" && styles.colorSwatchSelected,
+                ]}
+                onPress={() => setActivePicker("text")}
               />
             </View>
           </View>

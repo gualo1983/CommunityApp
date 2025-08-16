@@ -18,8 +18,8 @@ export interface SupabaseRequestResponse {
   descrizione_estesa: {
     dettagli: string;
   };
-//  parrocchia_id: string;
-//  utente_id: string;
+  //  parrocchia_id: string;
+  //  utente_id: string;
   data_creazione: string;
   data_scadenza: string;
 }

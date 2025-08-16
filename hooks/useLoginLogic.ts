@@ -1,9 +1,10 @@
 // File: hooks/useLoginLogic.tsx
 
-import { useRouter } from 'expo-router';
-import { useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../contexts/AuthProvider';
-import { useSupabase } from '../contexts/SupabaseProvider';
+import { useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useSupabase } from "../contexts/SupabaseProvider";
 
 /**
  * Hook personalizzato per gestire la logica della pagina di login.
@@ -15,14 +16,14 @@ export const useLoginLogic = () => {
   const { supabase } = useSupabase(); // Ottiene il client Supabase dal contesto
 
   // Stato per i campi del modulo
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Stato per la UI
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [focusedInput, setFocusedInput] = useState('');
+  const [error, setError] = useState<string>("");
+  const [focusedInput, setFocusedInput] = useState("");
   const [hasLoggedIn, setHasLoggedIn] = useState(false);
 
   // Funzione di validazione dell'email
@@ -41,33 +42,49 @@ export const useLoginLogic = () => {
    */
   const handleLogin = async () => {
     if (!isFormValid) {
-      setError('Inserisci email e password validi.');
+      setError("Inserisci email e password validi.");
       return;
     }
 
     setIsLoading(true);
-    setError('');
+    setError("");
 
     try {
       const { error: signInError } = await signIn(email, password);
-      
+
       if (signInError) {
-        console.log("useLoginLogic: Errore ricevuto da AuthProvider", signInError);
+        console.log(
+          "useLoginLogic: Errore ricevuto da AuthProvider",
+          signInError,
+        );
         // Cattura l'errore di Supabase per credenziali non valide
-        if (signInError.message.includes('Invalid login credentials')) {
-          setError('Email o password non validi. Riprova.');
+        if (
+          typeof signInError === "object" &&
+          signInError !== null &&
+          "message" in signInError &&
+          typeof signInError.message === "string" &&
+          signInError.message.includes("Invalid login credentials")
+        ) {
+          setError("Email o password non validi. Riprova.");
         } else {
-          setError('Si è verificato un errore inaspettato. Riprova.');
+          setError("Si è verificato un errore inaspettato. Riprova.");
         }
         setIsLoading(false); // Assicurati di fermare il caricamento anche in caso di errore
         setHasLoggedIn(false);
       } else {
         setHasLoggedIn(true);
       }
-      
-    } catch (err: any) {
-      console.error('useLoginLogic: Errore nel try/catch', err);
-      setError(err.message || 'Si è verificato un errore inaspettato. Riprova.');
+    } catch (err: unknown) {
+      // Modificato il tipo da `any` a `unknown` per una gestione più sicura
+      console.error("useLoginLogic: Errore nel try/catch", err);
+      if (err instanceof Error) {
+        // Controlla se l'errore è un'istanza di Error prima di accedere a 'message'
+        setError(
+          err.message || "Si è verificato un errore inaspettato. Riprova.",
+        );
+      } else {
+        setError("Si è verificato un errore sconosciuto. Riprova.");
+      }
       setIsLoading(false);
       setHasLoggedIn(false);
     }
@@ -80,43 +97,58 @@ export const useLoginLogic = () => {
    */
   useEffect(() => {
     if (user?.id && hasLoggedIn) {
-      console.log('useLoginLogic: Utente autenticato, controllo il profilo...');
+      console.log("useLoginLogic: Utente autenticato, controllo il profilo...");
       const checkFirstLogin = async () => {
         try {
           const { data: profileData, error: fetchError } = await supabase
-            .from('utenti')
-            .select('primo_login')
-            .eq('id', user.id)
+            .from("utenti")
+            .select("primo_login")
+            .eq("id", user.id)
             .single();
 
           if (fetchError) throw fetchError;
 
           if (profileData.primo_login) {
-            router.replace('/PersonalDataPage');
+            router.replace("/PersonalDataPage");
           } else {
-            router.replace('/');
+            router.replace("/");
           }
-        } catch (err: any) {
-          console.error('useLoginLogic: Errore nel recupero del profilo:', err);
-          setError(err.message || 'Errore nel recupero dei dati utente.');
+        } catch (err: unknown) {
+          // Modificato il tipo da `any` a `unknown`
+          console.error("useLoginLogic: Errore nel recupero del profilo:", err);
+          if (err instanceof Error) {
+            // Controlla se l'errore è un'istanza di Error prima di accedere a 'message'
+            setError(err.message || "Errore nel recupero dei dati utente.");
+          } else {
+            setError("Errore sconosciuto nel recupero dei dati utente.");
+          }
         } finally {
           setIsLoading(false);
           setHasLoggedIn(false);
         }
       };
-      
+
       checkFirstLogin();
     } else if (!user && !isLoading) {
       // Se l'utente non è loggato, assicurati che lo stato di caricamento sia falso.
       setIsLoading(false);
     }
-  }, [user, hasLoggedIn, supabase, router, isLoading]);
+  }, [
+    user,
+    hasLoggedIn,
+    supabase,
+    router,
+    isLoading,
+    setError,
+    setIsLoading,
+    setHasLoggedIn,
+  ]);
 
   /**
    * Reindirizza l'utente alla schermata di registrazione.
    */
   const handleRegisterRedirect = () => {
-    router.replace('/(auth)/registrazione');
+    router.replace("/(auth)/registrazione");
   };
 
   return {
@@ -136,8 +168,6 @@ export const useLoginLogic = () => {
     handleRegisterRedirect,
   };
 };
-
-
 
 /*
 // File: hooks/useLoginLogic.tsx
@@ -179,7 +209,7 @@ export const useLoginLogic = () => {
    * Gestisce il processo di login.
    * Chiama la funzione signIn del provider di autenticazione.
    */
-  /*
+/*
   const handleLogin = async () => {
     if (!isFormValid) {
       setError('Inserisci email e password validi.');
@@ -204,7 +234,7 @@ export const useLoginLogic = () => {
   /**
    * Reindirizza l'utente alla schermata di registrazione.
    */
-  /*
+/*
   const handleRegisterRedirect = () => {
     router.replace('/(auth)/registrazione');
   };

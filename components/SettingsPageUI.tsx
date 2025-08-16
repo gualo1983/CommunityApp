@@ -1,6 +1,6 @@
 // /components/SettingsPageUi.tsx
-import { useRouter } from 'expo-router';
-import React from 'react';
+import { useRouter } from "expo-router";
+import React from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -8,11 +8,13 @@ import {
   TouchableOpacity,
   View,
   useWindowDimensions,
-} from 'react-native';
-import { useAuth } from '../contexts/AuthProvider';
-import { useTheme } from '../contexts/theme';
-import { useSettingsLogic } from '../hooks/useSettingsLogic';
-import SettingsOption from './SettingsOption';
+} from "react-native";
+
+import { useAuth } from "../contexts/AuthProvider";
+import { useTheme } from "../contexts/theme";
+import { useSettingsLogic } from "../hooks/useSettingsLogic";
+
+import SettingsOption from "./SettingsOption";
 
 export const SettingsPageUI = () => {
   const { theme } = useTheme();
@@ -34,39 +36,66 @@ export const SettingsPageUI = () => {
   const styles = StyleSheet.create({
     // Il contenitore principale occupa l'intera pagina e imposta lo sfondo
     container: {
-      flex: 1,
       backgroundColor: theme.colors.background,
+      flex: 1,
     },
     // Lo stile del contenitore del contenuto di ScrollView
     contentContainer: {
+      alignItems: "center", // Centra orizzontalmente tutto il contenuto
       flexGrow: 1, // Permette a ScrollView di espandersi
-      alignItems: 'center', // Centra orizzontalmente tutto il contenuto
       padding: 20,
+    },
+    disabledOpacity: {
+      opacity: 0.7,
+    },
+    importButton: {
+      alignItems: "center",
+      backgroundColor: theme.colors.primary,
+      borderRadius: 10,
+      marginTop: 10,
+      padding: 15,
+    },
+    importButtonText: {
+      color: theme.colors.headerText,
+      fontSize: theme.typography.fontSizes.medium,
+      fontWeight: theme.typography.fontWeights.bold,
     },
     // Questo è il contenitore della card principale, ora centrato
     mainCardContainer: {
-      width: '100%',
-      maxWidth: 400, // Limite per schermi grandi
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 15,
-      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
       elevation: 8,
+      maxWidth: 400, // Limite per schermi grandi
       padding: 20,
+      width: "100%",
+    },
+    personalDataButton: {
+      alignItems: "center",
+      backgroundColor: theme.colors.primary,
+      borderRadius: 10,
+      marginTop: 10,
+      padding: 15,
+    },
+    personalDataButtonText: {
+      color: theme.colors.headerText,
+      fontSize: theme.typography.fontSizes.medium,
+      fontWeight: theme.typography.fontWeights.bold,
     },
     saveButton: {
-      alignItems: 'center',
-      alignSelf: 'center',
+      alignItems: "center",
+      alignSelf: "center",
       backgroundColor: theme.colors.primary,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
       borderRadius: 10,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
       elevation: 5,
+      opacity: isSaving ? 0.7 : 1,
       paddingHorizontal: 50,
       paddingVertical: 15,
-      opacity: isSaving ? 0.7 : 1,
     },
     saveButtonContainer: {
       marginTop: 20,
-      width: '100%',
+      width: "100%",
     },
     saveButtonText: {
       color: theme.colors.headerText,
@@ -76,11 +105,11 @@ export const SettingsPageUI = () => {
     sectionContainer: {
       backgroundColor: theme.colors.cardBackground,
       borderRadius: 10,
-      boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
       elevation: 5,
       marginBottom: 20,
       padding: 15,
-      width: '100%',
+      width: "100%",
     },
     subtitle: {
       color: theme.colors.text,
@@ -88,39 +117,17 @@ export const SettingsPageUI = () => {
       fontWeight: theme.typography.fontWeights.bold,
       marginBottom: 10,
     },
-    personalDataButton: {
-      backgroundColor: theme.colors.primary,
-      padding: 15,
-      borderRadius: 10,
-      marginTop: 10,
-      alignItems: 'center',
-    },
-    personalDataButtonText: {
-      color: theme.colors.headerText,
-      fontSize: theme.typography.fontSizes.medium,
-      fontWeight: theme.typography.fontWeights.bold,
-    },
-    importButton: {
-      backgroundColor: theme.colors.primary,
-      padding: 15,
-      borderRadius: 10,
-      marginTop: 10,
-      alignItems: 'center',
-    },
-    importButtonText: {
-      color: theme.colors.headerText,
-      fontSize: theme.typography.fontSizes.medium,
-      fontWeight: theme.typography.fontWeights.bold,
-    },
   });
 
-
   const handleOpenPersonalDataPage = () => {
-    router.push('/PersonalDataPage');
+    router.push("/PersonalDataPage");
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.contentContainer} style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.contentContainer}
+      style={styles.container}
+    >
       <View style={styles.mainCardContainer}>
         <View style={styles.sectionContainer}>
           <Text style={styles.subtitle}>Informazioni Personali</Text>
@@ -136,33 +143,36 @@ export const SettingsPageUI = () => {
           <View style={styles.sectionContainer}>
             <Text style={styles.subtitle}>Importa Preferenze</Text>
             <TouchableOpacity
-              style={[styles.importButton, { opacity: isImporting ? 0.7 : 1 }]}
+              style={[
+                styles.importButton,
+                isImporting && styles.disabledOpacity,
+              ]}
               onPress={handleImportPreferences}
               disabled={isImporting}
             >
               <Text style={styles.importButtonText}>
-                {isImporting ? 'Importazione...' : 'Importa preferenze salvate'}
+                {isImporting ? "Importazione..." : "Importa preferenze salvate"}
               </Text>
             </TouchableOpacity>
           </View>
         )}
-        
+
         <View style={styles.sectionContainer}>
           <Text style={styles.subtitle}>Tema dell&apos;App</Text>
           <SettingsOption
             label="Tema chiaro"
-            isSelected={themeName === 'light'}
-            onPress={() => handleThemeChange('light')}
+            isSelected={themeName === "light"}
+            onPress={() => handleThemeChange("light")}
           />
           <SettingsOption
             label="Tema scuro"
-            isSelected={themeName === 'dark'}
-            onPress={() => handleThemeChange('dark')}
+            isSelected={themeName === "dark"}
+            onPress={() => handleThemeChange("dark")}
           />
           <SettingsOption
             label="Scelto da me"
-            isSelected={themeName === 'custom'}
-            onPress={() => handleThemeChange('custom')}
+            isSelected={themeName === "custom"}
+            onPress={() => handleThemeChange("custom")}
           />
         </View>
 
@@ -170,31 +180,36 @@ export const SettingsPageUI = () => {
           <Text style={styles.subtitle}>Dimensione Carattere</Text>
           <SettingsOption
             label="Piccolo"
-            isSelected={fontSizeOption === 'small'}
-            onPress={() => handleFontSizeChange('small')}
+            isSelected={fontSizeOption === "small"}
+            onPress={() => handleFontSizeChange("small")}
           />
           <SettingsOption
             label="Medio"
-            isSelected={fontSizeOption === 'medium'}
-            onPress={() => handleFontSizeChange('medium')}
+            isSelected={fontSizeOption === "medium"}
+            onPress={() => handleFontSizeChange("medium")}
           />
           <SettingsOption
             label="Grande"
-            isSelected={fontSizeOption === 'large'}
-            onPress={() => handleFontSizeChange('large')}
+            isSelected={fontSizeOption === "large"}
+            onPress={() => handleFontSizeChange("large")}
           />
         </View>
 
         <View style={styles.saveButtonContainer}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={isSaving}>
-            <Text style={styles.saveButtonText}>{isSaving ? 'Salvataggio...' : 'Salva'}</Text>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={handleSave}
+            disabled={isSaving}
+          >
+            <Text style={styles.saveButtonText}>
+              {isSaving ? "Salvataggio..." : "Salva"}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
   );
 };
-
 
 /*
 import { useRouter } from 'expo-router';

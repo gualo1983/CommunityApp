@@ -1,9 +1,10 @@
 // app/(tabs)/_layout.tsx
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
-import React from 'react';
-import DropdownMenu from '../../components/DropdownMenu'; // Importa il DropdownMenu
-import { useTheme } from '../../contexts/theme'; // Importa l'hook useTheme
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Tabs } from "expo-router";
+import React from "react";
+
+import DropdownMenu from "../../components/DropdownMenu"; // Importa il DropdownMenu
+import { useTheme } from "../../contexts/theme"; // Importa l'hook useTheme
 
 // Questo file definisce il layout della barra di navigazione inferiore.
 // Expo Router userà automaticamente i file in questa directory per creare le tab.
@@ -20,9 +21,9 @@ export default function TabLayout() {
         headerTitleStyle: {
           color: theme.colors.headerText, // Usa il colore del tema
           fontSize: 24,
-          fontWeight: 'bold',
+          fontWeight: "bold",
         },
-        headerTitleAlign: 'center', // Centra il titolo dell'header
+        headerTitleAlign: "center", // Centra il titolo dell'header
         tabBarStyle: {
           backgroundColor: theme.colors.tabBarBackground, // Usa il colore del tema
           borderTopWidth: 1,
@@ -37,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index" // Rinominiamo la prima tab in 'index'
         options={{
-          title: 'Eventi',
+          title: "Eventi",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="calendar" size={24} color={color} />
           ),
@@ -48,7 +49,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="requests"
         options={{
-          title: 'Richieste',
+          title: "Richieste",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="hand-heart" size={24} color={color} />
           ),
@@ -58,9 +59,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="community"
         options={{
-          title: 'Comunità',
+          title: "Comunità",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="account-group" size={24} color={color} />
+            <MaterialCommunityIcons
+              name="account-group"
+              size={24}
+              color={color}
+            />
           ),
           headerRight: () => <DropdownMenu />, // E anche qui
         }}
